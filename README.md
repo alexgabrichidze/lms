@@ -1,8 +1,8 @@
 # Library management system
 
-## Project Description
+## Project description
 
-The **Library management system** is a backend application designed to manage books, users, and loan transactions for a library. It provides REST API endpoints to perform CRUD operations for books, users, and loans while ensuring role-based access control for administrative tasks. This system is developed in **pure Java** using minimal libraries and a PostgreSQL database, with Maven as the build tool. This project focuses on creating a foundational system for managing library operations efficiently, serving as a platform for learning backend development.
+The **library management system** is a backend application designed to manage books, users, and loan transactions for a library. It provides REST API endpoints to perform CRUD operations for books, users, and loans while ensuring role-based access control for administrative tasks. This system is developed in **pure Java** using minimal libraries and a PostgreSQL database, with Maven as the build tool. This project focuses on creating a foundational system for managing library operations efficiently, serving as a platform for learning backend development.
 
 ---
 
