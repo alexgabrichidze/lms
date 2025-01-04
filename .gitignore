@@ -1,1 +1,9 @@
+# Maven build directory
+target/
+dependency-reduced-pom.xml
+
+# Sensitive files
+.env
+
+# Other 
 desc.md
