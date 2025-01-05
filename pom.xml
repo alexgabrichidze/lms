@@ -47,6 +47,13 @@
       <artifactId>logback-classic</artifactId>
       <version>1.5.15</version>
     </dependency>
+
+    <!-- Dotenv file -->
+    <dependency>
+      <groupId>io.github.cdimascio</groupId>
+      <artifactId>dotenv-java</artifactId>
+      <version>3.1.0</version>
+    </dependency>
   </dependencies>
 
   <build>
