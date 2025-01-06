@@ -21,27 +21,25 @@ public class BookDaoImpl implements BookDao {
      */
     @Override
     public void addBook(Book book) {
-        // SQL query to insert a new record into the books table
-        String sql = "INSERT INTO books (title, author, isbn, published_date, status) VALUES (?, ?, ?, ?, ?)";
-        try (
-                // Get a database connection
-                Connection connection = ConnectionManager.getConnection();
-                // Prepare the SQL query for execution
+        String sql = "INSERT INTO books (title, author, isbn, published_date, status) VALUES (?, ?, ?, ?, ?) RETURNING id";
+        try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
-            // Set the values for the placeholders (?)
-            statement.setString(1, book.getTitle()); // Set the title
-            statement.setString(2, book.getAuthor()); // Set the author
-            statement.setString(3, book.getIsbn()); // Set the ISBN
-            statement.setDate(4, book.getPublishedDate() != null ? Date.valueOf(book.getPublishedDate()) : null); // Set
-                                                                                                                  // the
-                                                                                                                  // published
-                                                                                                                  // date
-            statement.setString(5, book.getStatus()); // Set the status
 
-            // Execute the query and insert the book into the database
-            statement.executeUpdate();
+            // Set parameters for the insert query
+            statement.setString(1, book.getTitle());
+            statement.setString(2, book.getAuthor());
+            statement.setString(3, book.getIsbn());
+            statement.setDate(4, book.getPublishedDate() != null ? Date.valueOf(book.getPublishedDate()) : null);
+            statement.setString(5, book.getStatus());
+
+            // Execute the insert query and retrieve the generated ID
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                book.setId(resultSet.getInt("id")); // Set the generated ID in the Book object
+            }
+
         } catch (SQLException e) {
-            e.printStackTrace(); // Log any SQL exceptions
+            e.printStackTrace();
         }
     }
 
@@ -53,31 +51,28 @@ public class BookDaoImpl implements BookDao {
      */
     @Override
     public Book getBookById(int id) {
-        // SQL query to select a book by its ID
-        String sql = "SELECT * FROM books WHERE id = ?";
-        try (
-                // Get a database connection
-                Connection connection = ConnectionManager.getConnection();
-                // Prepare the SQL query for execution
+        String sql = "SELECT id, title, author, isbn, published_date, status FROM books WHERE id = ?";
+        try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
-            // Set the ID parameter in the query
-            statement.setInt(1, id);
 
-            // Execute the query and get the result set
+            statement.setInt(1, id); // Set the id parameter for the query
             ResultSet resultSet = statement.executeQuery();
 
-            // If a result is found, create and return a Book object
             if (resultSet.next()) {
-                return new Book(
+                // Map the result set to a Book object
+                Book book = new Book(
                         resultSet.getString("title"),
                         resultSet.getString("author"),
                         resultSet.getString("isbn"),
-                        resultSet.getDate("published_date") != null ? resultSet.getDate("published_date").toLocalDate()
+                        resultSet.getDate("published_date") != null
+                                ? resultSet.getDate("published_date").toLocalDate()
                                 : null,
                         resultSet.getString("status"));
+                book.setId(resultSet.getInt("id")); // Set the id field explicitly
+                return book;
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // Log any SQL exceptions
+            e.printStackTrace();
         }
         return null; // Return null if no book is found
     }
@@ -89,31 +84,29 @@ public class BookDaoImpl implements BookDao {
      */
     @Override
     public List<Book> getAllBooks() {
-        // List to store the retrieved books
         List<Book> books = new ArrayList<>();
-        // SQL query to select all books
-        String sql = "SELECT * FROM books";
-        try (
-                // Get a database connection
-                Connection connection = ConnectionManager.getConnection();
-                // Prepare the SQL query for execution
+        String sql = "SELECT id, title, author, isbn, published_date, status FROM books";
+        try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql);
-                // Execute the query and get the result set
                 ResultSet resultSet = statement.executeQuery()) {
-            // Iterate through the result set and add each book to the list
+
             while (resultSet.next()) {
-                books.add(new Book(
+                // Create a Book object and set all its fields, including the ID
+                Book book = new Book(
                         resultSet.getString("title"),
                         resultSet.getString("author"),
                         resultSet.getString("isbn"),
-                        resultSet.getDate("published_date") != null ? resultSet.getDate("published_date").toLocalDate()
+                        resultSet.getDate("published_date") != null
+                                ? resultSet.getDate("published_date").toLocalDate()
                                 : null,
-                        resultSet.getString("status")));
+                        resultSet.getString("status"));
+                book.setId(resultSet.getInt("id")); // Set the book's ID
+                books.add(book);
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // Log any SQL exceptions
+            e.printStackTrace();
         }
-        return books; // Return the list of books
+        return books;
     }
 
     /**
