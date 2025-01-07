@@ -2,7 +2,11 @@ package com.library;
 
 import com.library.dao.*;
 import com.library.model.Book;
+import com.library.util.ConnectionManager;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -75,5 +79,15 @@ public class BookDaoImplTest {
         // Verify the book was deleted
         Book book = bookDao.getBookById(testBookId);
         assertNull(book, "Book should be null after deletion");
+    }
+
+    @AfterAll
+    void cleanDatabase() {
+        try (Connection connection = ConnectionManager.getConnection();
+                Statement statement = connection.createStatement()) {
+            statement.executeUpdate("DELETE FROM books");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

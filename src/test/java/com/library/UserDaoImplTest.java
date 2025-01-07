@@ -3,8 +3,13 @@ package com.library;
 import com.library.dao.UserDao;
 import com.library.dao.UserDaoImpl;
 import com.library.model.User;
+import com.library.util.ConnectionManager;
+
 import org.junit.jupiter.api.*;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -93,5 +98,15 @@ public class UserDaoImplTest {
         assertNotNull(fetchedUser, "User should be found by email");
         assertEquals("Email Tester", fetchedUser.getName());
         assertEquals("USER", fetchedUser.getRole());
+    }
+
+    @AfterAll
+    void cleanDatabase() {
+        try (Connection connection = ConnectionManager.getConnection();
+                Statement statement = connection.createStatement()) {
+            statement.executeUpdate("DELETE FROM users");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

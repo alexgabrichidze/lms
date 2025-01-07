@@ -156,4 +156,15 @@ public class LoanDaoImplTest {
         assertNull(activeLoans.get(0).getReturnDate(), "Return date of active loan should be null");
     }
 
+    @AfterAll
+    void cleanDatabaseAfterAll() {
+        try (Connection connection = ConnectionManager.getConnection();
+                Statement statement = connection.createStatement()) {
+            statement.executeUpdate("DELETE FROM loans");
+            statement.executeUpdate("DELETE FROM users");
+            statement.executeUpdate("DELETE FROM books");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
