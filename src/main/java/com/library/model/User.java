@@ -30,6 +30,21 @@ public class User {
     }
 
     /**
+     * Parameterized constructor for creating a User with all attributes.
+     *
+     * @param id    the unique identifier of the user
+     * @param name  the name of the user (must not be null or empty)
+     * @param email the email address of the user (must be valid and not null)
+     * @param role  the role of the user (must be either USER or ADMIN)
+     */
+    public User(int id, String name, String email, String role) {
+        this.setId(id); // Validates and sets the ID
+        this.setName(name); // Validates and sets the name
+        this.setEmail(email); // Validates and sets the email
+        this.setRole(role); // Validates and sets the role
+    }
+
+    /**
      * Gets the unique identifier of the user.
      *
      * @return the user ID
