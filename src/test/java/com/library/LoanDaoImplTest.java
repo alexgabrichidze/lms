@@ -6,8 +6,10 @@ import com.library.model.Loan;
 import com.library.util.ConnectionManager;
 
 import org.junit.jupiter.api.*;
+import java.sql.Connection;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -32,8 +34,8 @@ public class LoanDaoImplTest {
         loanDao = new LoanDaoImpl();
 
         // Add dummy user
-        try (var connection = ConnectionManager.getConnection();
-                var statement = connection.createStatement()) {
+        try (Connection connection = ConnectionManager.getConnection();
+                Statement statement = connection.createStatement()) {
             statement.executeUpdate(
                     "INSERT INTO users (id, name, email, role) VALUES (1, 'Test User', 'testuser@example.com', 'USER') ON CONFLICT DO NOTHING");
             statement.executeUpdate(
@@ -45,8 +47,8 @@ public class LoanDaoImplTest {
 
     @AfterEach
     void cleanDatabase() {
-        try (var connection = ConnectionManager.getConnection();
-                var statement = connection.createStatement()) {
+        try (Connection connection = ConnectionManager.getConnection();
+                Statement statement = connection.createStatement()) {
             statement.executeUpdate("DELETE FROM loans");
         } catch (SQLException e) {
             e.printStackTrace();
