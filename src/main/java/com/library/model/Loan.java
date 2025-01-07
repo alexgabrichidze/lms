@@ -35,6 +35,23 @@ public class Loan {
     }
 
     /**
+     * Parameterized constructor for creating a Loan with specified attributes.
+     *
+     * @param id         the unique identifier of the loan
+     * @param userId     the ID of the user who borrowed the book (must be positive)
+     * @param bookId     the ID of the borrowed book (must be positive)
+     * @param loanDate   the loan date (defaults to current date if null)
+     * @param returnDate the return date (nullable, must not be before loan date)
+     */
+    public Loan(int id, int userId, int bookId, LocalDate loanDate, LocalDate returnDate) {
+        this.setId(id); // Validates and sets the loan ID
+        this.setUserId(userId); // Validates and sets the user ID
+        this.setBookId(bookId); // Validates and sets the book ID
+        this.setLoanDate(loanDate); // Validates and sets the loan date
+        this.setReturnDate(returnDate); // Validates and sets the return date
+    }
+
+    /**
      * Gets the unique identifier of the loan.
      *
      * @return the loan ID
