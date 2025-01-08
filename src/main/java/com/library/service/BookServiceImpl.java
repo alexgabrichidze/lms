@@ -3,6 +3,7 @@ package com.library.service;
 import com.library.dao.BookDao;
 import com.library.dao.BookDaoImpl;
 import com.library.model.Book;
+import com.library.model.BookStatus;
 import com.library.service.exceptions.BookNotFoundException;
 import com.library.service.exceptions.InvalidBookException;
 import com.library.util.ValidationUtil;
@@ -43,6 +44,11 @@ public class BookServiceImpl implements BookService {
                 () -> new InvalidBookException("Book author cannot be null or empty."));
         ValidationUtil.validateNotEmpty(book.getIsbn(), "Book ISBN",
                 () -> new InvalidBookException("Book ISBN cannot be null or empty."));
+
+        // Use BookStatus enum for default status
+        if (book.getStatus() == null) {
+            book.setStatus(BookStatus.AVAILABLE);
+        }
 
         bookDao.addBook(book);
     }
@@ -203,14 +209,15 @@ public class BookServiceImpl implements BookService {
      * @throws BookNotFoundException if no book with the given ID exists
      */
     @Override
-    public void updateBookStatus(int id, String status) {
+    public void updateBookStatus(int id, BookStatus status) {
         if (id <= 0) {
             throw new InvalidBookException("Book ID must be a positive integer.");
         }
 
         // Validate book status before updating
-        ValidationUtil.validateNotEmpty(status, "Book status",
-                () -> new InvalidBookException("Book status cannot be null or empty."));
+        if (status == null) {
+            throw new InvalidBookException("Book status cannot be null.");
+        }
 
         // Check if the book exists before proceeding
         Book book = bookDao.getBookById(id);

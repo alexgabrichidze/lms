@@ -3,6 +3,7 @@ package com.library.service;
 import com.library.dao.UserDao;
 import com.library.dao.UserDaoImpl;
 import com.library.model.User;
+import com.library.model.UserRole;
 import com.library.service.exceptions.InvalidUserException;
 import com.library.service.exceptions.UserNotFoundException;
 import com.library.util.ConnectionManager;
@@ -38,7 +39,7 @@ public class UserServiceImplTest {
     @Test
     @Order(1)
     void testCreateUser() {
-        User user = new User(0, "John Doe", "john.doe@example.com", "USER");
+        User user = new User(0, "John Doe", "john.doe@example.com", UserRole.USER);
         userService.createUser(user);
         assertTrue(user.getId() > 0, "User ID should be set after insertion");
         testUserId = user.getId();
@@ -50,9 +51,9 @@ public class UserServiceImplTest {
         assertThrows(InvalidUserException.class, () -> userService.createUser(null),
                 "Null user should throw exception");
         assertThrows(InvalidUserException.class,
-                () -> userService.createUser(new User(0, "", "invalid@example.com", "USER")),
+                () -> userService.createUser(new User(0, "", "invalid@example.com", UserRole.USER)),
                 "Empty name should throw exception");
-        assertThrows(InvalidUserException.class, () -> userService.createUser(new User(0, "Name", "", "USER")),
+        assertThrows(InvalidUserException.class, () -> userService.createUser(new User(0, "Name", "", UserRole.USER)),
                 "Empty email should throw exception");
     }
 
@@ -89,20 +90,20 @@ public class UserServiceImplTest {
         // Update user details
         user.setName("Jane Doe");
         user.setEmail("jane.doe@example.com");
-        user.setRole("ADMIN");
+        user.setRole(UserRole.ADMIN);
         userService.updateUser(user);
 
         // Verify the update
         User updatedUser = userService.getUserById(testUserId);
         assertEquals("Jane Doe", updatedUser.getName(), "Updated name should match");
         assertEquals("jane.doe@example.com", updatedUser.getEmail(), "Updated email should match");
-        assertEquals("ADMIN", updatedUser.getRole(), "Updated role should match");
+        assertEquals(UserRole.ADMIN, updatedUser.getRole(), "Updated role should match");
     }
 
     @Test
     @Order(7)
     void testUpdateUserInvalid() {
-        User invalidUser = new User(9999, "Non-existent", "nonexistent@example.com", "USER");
+        User invalidUser = new User(9999, "Non-existent", "nonexistent@example.com", UserRole.USER);
         assertThrows(UserNotFoundException.class, () -> userService.updateUser(invalidUser),
                 "Updating non-existent user should throw exception");
     }
@@ -121,14 +122,14 @@ public class UserServiceImplTest {
     @Order(9)
     void testGetUserByEmail() {
         // Add a new user
-        User user = new User(0, "Email Tester", "test.email@example.com", "USER");
+        User user = new User(0, "Email Tester", "test.email@example.com", UserRole.USER);
         userService.createUser(user);
 
         // Fetch by email
         User fetchedUser = userService.getUserByEmail("test.email@example.com");
         assertNotNull(fetchedUser, "User should be found by email");
         assertEquals("Email Tester", fetchedUser.getName());
-        assertEquals("USER", fetchedUser.getRole());
+        assertEquals(UserRole.USER, fetchedUser.getRole());
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.library.dao;
 
 import com.library.model.User;
+import com.library.model.UserRole;
 import com.library.util.ConnectionManager;
 
 import org.junit.jupiter.api.*;
@@ -31,7 +32,7 @@ public class UserDaoImplTest {
     @Test
     @Order(1)
     void testAddUser() {
-        User user = new User(0, "John Doe", "john.doe@example.com", "USER");
+        User user = new User(0, "John Doe", "john.doe@example.com", UserRole.USER);
         userDao.addUser(user);
         assertTrue(user.getId() > 0, "User ID should be set after insertion");
         testUserId = user.getId();
@@ -44,7 +45,7 @@ public class UserDaoImplTest {
         assertNotNull(user, "User should be found by ID");
         assertEquals("John Doe", user.getName());
         assertEquals("john.doe@example.com", user.getEmail());
-        assertEquals("USER", user.getRole());
+        assertEquals(UserRole.USER, user.getRole());
     }
 
     @Test
@@ -64,14 +65,14 @@ public class UserDaoImplTest {
         // Update user details
         user.setName("Jane Doe");
         user.setEmail("jane.doe@example.com");
-        user.setRole("ADMIN");
+        user.setRole(UserRole.ADMIN);
         userDao.updateUser(user);
 
         // Verify the update
         User updatedUser = userDao.getUserById(testUserId);
         assertEquals("Jane Doe", updatedUser.getName(), "Updated name should match");
         assertEquals("jane.doe@example.com", updatedUser.getEmail(), "Updated email should match");
-        assertEquals("ADMIN", updatedUser.getRole(), "Updated role should match");
+        assertEquals(UserRole.ADMIN, updatedUser.getRole(), "Updated role should match");
     }
 
     @Test
@@ -88,14 +89,14 @@ public class UserDaoImplTest {
     @Order(6)
     void testGetUserByEmail() {
         // Add a new user
-        User user = new User(0, "Email Tester", "test.email@example.com", "USER");
+        User user = new User(0, "Email Tester", "test.email@example.com", UserRole.USER);
         userDao.addUser(user);
 
         // Fetch by email
         User fetchedUser = userDao.getUserByEmail("test.email@example.com");
         assertNotNull(fetchedUser, "User should be found by email");
         assertEquals("Email Tester", fetchedUser.getName());
-        assertEquals("USER", fetchedUser.getRole());
+        assertEquals(UserRole.USER, fetchedUser.getRole());
     }
 
     @AfterAll

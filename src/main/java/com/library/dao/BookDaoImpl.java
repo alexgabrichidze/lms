@@ -1,6 +1,7 @@
 package com.library.dao;
 
 import com.library.model.Book;
+import com.library.model.BookStatus;
 import com.library.util.ConnectionManager;
 
 import java.sql.*;
@@ -25,19 +26,16 @@ public class BookDaoImpl implements BookDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            // Set parameters for the insert query
             statement.setString(1, book.getTitle());
             statement.setString(2, book.getAuthor());
             statement.setString(3, book.getIsbn());
             statement.setDate(4, book.getPublishedDate() != null ? Date.valueOf(book.getPublishedDate()) : null);
-            statement.setString(5, book.getStatus());
+            statement.setString(5, book.getStatus().name()); // Convert enum to string
 
-            // Execute the insert query and retrieve the generated ID
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 book.setId(resultSet.getInt("id")); // Set the generated ID in the Book object
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -55,26 +53,16 @@ public class BookDaoImpl implements BookDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setInt(1, id); // Set the id parameter for the query
+            statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                // Map the result set to a Book object
-                Book book = new Book(
-                        resultSet.getString("title"),
-                        resultSet.getString("author"),
-                        resultSet.getString("isbn"),
-                        resultSet.getDate("published_date") != null
-                                ? resultSet.getDate("published_date").toLocalDate()
-                                : null,
-                        resultSet.getString("status"));
-                book.setId(resultSet.getInt("id")); // Set the id field explicitly
-                return book;
+                return mapResultSetToBook(resultSet);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null; // Return null if no book is found
+        return null;
     }
 
     /**
@@ -91,17 +79,7 @@ public class BookDaoImpl implements BookDao {
                 ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
-                // Create a Book object and set all its fields, including the ID
-                Book book = new Book(
-                        resultSet.getString("title"),
-                        resultSet.getString("author"),
-                        resultSet.getString("isbn"),
-                        resultSet.getDate("published_date") != null
-                                ? resultSet.getDate("published_date").toLocalDate()
-                                : null,
-                        resultSet.getString("status"));
-                book.setId(resultSet.getInt("id")); // Set the book's ID
-                books.add(book);
+                books.add(mapResultSetToBook(resultSet));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -116,29 +94,38 @@ public class BookDaoImpl implements BookDao {
      */
     @Override
     public void updateBook(Book book) {
-        // SQL query to update a book's details by its ID
         String sql = "UPDATE books SET title = ?, author = ?, isbn = ?, published_date = ?, status = ? WHERE id = ?";
-        try (
-                // Get a database connection
-                Connection connection = ConnectionManager.getConnection();
-                // Prepare the SQL query for execution
+        try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
-            // Set the values for the placeholders (?)
-            statement.setString(1, book.getTitle()); // Set the updated title
-            statement.setString(2, book.getAuthor()); // Set the updated author
-            statement.setString(3, book.getIsbn()); // Set the updated ISBN
-            statement.setDate(4, book.getPublishedDate() != null ? Date.valueOf(book.getPublishedDate()) : null); // Set
-                                                                                                                  // the
-                                                                                                                  // updated
-                                                                                                                  // published
-                                                                                                                  // date
-            statement.setString(5, book.getStatus()); // Set the updated status
-            statement.setInt(6, book.getId()); // Set the ID of the book to update
 
-            // Execute the query and update the book in the database
+            statement.setString(1, book.getTitle());
+            statement.setString(2, book.getAuthor());
+            statement.setString(3, book.getIsbn());
+            statement.setDate(4, book.getPublishedDate() != null ? Date.valueOf(book.getPublishedDate()) : null);
+            statement.setString(5, book.getStatus().name()); // Convert enum to string
+            statement.setInt(6, book.getId());
+
             statement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace(); // Log any SQL exceptions
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Deletes a book from the database by its ID.
+     *
+     * @param id the ID of the book to delete
+     */
+    @Override
+    public void deleteBook(int id) {
+        String sql = "DELETE FROM books WHERE id = ?";
+        try (Connection connection = ConnectionManager.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -156,19 +143,11 @@ public class BookDaoImpl implements BookDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            // Use SQL LIKE with wildcards for partial matches
             statement.setString(1, "%" + title.toLowerCase() + "%");
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                books.add(new Book(
-                        resultSet.getString("title"),
-                        resultSet.getString("author"),
-                        resultSet.getString("isbn"),
-                        resultSet.getDate("published_date") != null
-                                ? resultSet.getDate("published_date").toLocalDate()
-                                : null,
-                        resultSet.getString("status")));
+                books.add(mapResultSetToBook(resultSet));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -190,19 +169,11 @@ public class BookDaoImpl implements BookDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            // Use SQL LIKE with wildcards for partial matches
             statement.setString(1, "%" + author.toLowerCase() + "%");
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                books.add(new Book(
-                        resultSet.getString("title"),
-                        resultSet.getString("author"),
-                        resultSet.getString("isbn"),
-                        resultSet.getDate("published_date") != null
-                                ? resultSet.getDate("published_date").toLocalDate()
-                                : null,
-                        resultSet.getString("status")));
+                books.add(mapResultSetToBook(resultSet));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -227,14 +198,7 @@ public class BookDaoImpl implements BookDao {
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                return new Book(
-                        resultSet.getString("title"),
-                        resultSet.getString("author"),
-                        resultSet.getString("isbn"),
-                        resultSet.getDate("published_date") != null
-                                ? resultSet.getDate("published_date").toLocalDate()
-                                : null,
-                        resultSet.getString("status"));
+                return mapResultSetToBook(resultSet);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -243,26 +207,23 @@ public class BookDaoImpl implements BookDao {
     }
 
     /**
-     * Deletes a book from the database by its ID.
+     * Helper method to map a result set to a Book object.
      *
-     * @param id the ID of the book to delete
+     * @param resultSet the result set to map
+     * @return the Book object
+     * @throws SQLException if a database access error occurs
      */
-    @Override
-    public void deleteBook(int id) {
-        // SQL query to delete a book by its ID
-        String sql = "DELETE FROM books WHERE id = ?";
-        try (
-                // Get a database connection
-                Connection connection = ConnectionManager.getConnection();
-                // Prepare the SQL query for execution
-                PreparedStatement statement = connection.prepareStatement(sql)) {
-            // Set the ID parameter in the query
-            statement.setInt(1, id);
-
-            // Execute the query and delete the book from the database
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace(); // Log any SQL exceptions
-        }
+    private Book mapResultSetToBook(ResultSet resultSet) throws SQLException {
+        Book book = new Book(
+                resultSet.getString("title"),
+                resultSet.getString("author"),
+                resultSet.getString("isbn"),
+                resultSet.getDate("published_date") != null
+                        ? resultSet.getDate("published_date").toLocalDate()
+                        : null,
+                BookStatus.valueOf(resultSet.getString("status").toUpperCase()) // Convert string to enum
+        );
+        book.setId(resultSet.getInt("id")); // Explicitly set the book's ID
+        return book;
     }
 }

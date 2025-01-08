@@ -1,6 +1,7 @@
 package com.library.service;
 
 import com.library.model.Book;
+import com.library.model.BookStatus;
 import com.library.service.exceptions.BookNotFoundException;
 import com.library.service.exceptions.InvalidBookException;
 
@@ -81,12 +82,13 @@ public interface BookService {
     Book getBookByIsbn(String isbn);
 
     /**
-     * Updates the status of a book (e.g., AVAILABLE, BORROWED, RESERVED).
+     * Updates the status of a book (e.g., AVAILABLE, BORROWED).
      *
      * @param id     the ID of the book to update
      * @param status the new status of the book
-     * @throws InvalidBookException  if the status is invalid
+     * @throws InvalidBookException  if the ID or status is invalid
      * @throws BookNotFoundException if no book with the given ID exists
      */
-    void updateBookStatus(int id, String status);
+    void updateBookStatus(int id, BookStatus status);
+
 }

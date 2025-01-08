@@ -1,6 +1,7 @@
 package com.library.dao;
 
 import com.library.model.User;
+import com.library.model.UserRole;
 import com.library.util.ConnectionManager;
 
 import java.sql.*;
@@ -16,7 +17,7 @@ public class UserDaoImpl implements UserDao {
 
     /**
      * Adds a new user to the database.
-     * 
+     *
      * @param user the User object containing the details of the user to be added
      */
     @Override
@@ -25,12 +26,10 @@ public class UserDaoImpl implements UserDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            // Set the parameters for the insert query
             statement.setString(1, user.getName());
             statement.setString(2, user.getEmail());
-            statement.setString(3, user.getRole());
+            statement.setString(3, user.getRole().name()); // Convert enum to string
 
-            // Execute the query and retrieve the generated ID
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 user.setId(resultSet.getInt("id")); // Set the generated ID in the User object
@@ -42,7 +41,7 @@ public class UserDaoImpl implements UserDao {
 
     /**
      * Retrieves a user from the database by their unique ID.
-     * 
+     *
      * @param id the ID of the user to retrieve
      * @return the User object if found, or null if no user with the given ID exists
      */
@@ -52,26 +51,21 @@ public class UserDaoImpl implements UserDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setInt(1, id); // Set the ID parameter for the query
+            statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                // Create a User object and set its fields
-                return new User(
-                        resultSet.getInt("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("email"),
-                        resultSet.getString("role"));
+                return mapResultSetToUser(resultSet);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null; // Return null if no user is found
+        return null;
     }
 
     /**
      * Retrieves all users from the database.
-     * 
+     *
      * @return a list of User objects, or an empty list if no users are found
      */
     @Override
@@ -83,12 +77,7 @@ public class UserDaoImpl implements UserDao {
                 ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
-                // Add each user to the list
-                users.add(new User(
-                        resultSet.getInt("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("email"),
-                        resultSet.getString("role")));
+                users.add(mapResultSetToUser(resultSet));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -98,7 +87,7 @@ public class UserDaoImpl implements UserDao {
 
     /**
      * Updates the details of an existing user in the database.
-     * 
+     *
      * @param user the User object containing the updated details
      */
     @Override
@@ -107,13 +96,11 @@ public class UserDaoImpl implements UserDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            // Set the parameters for the update query
             statement.setString(1, user.getName());
             statement.setString(2, user.getEmail());
-            statement.setString(3, user.getRole());
-            statement.setInt(4, user.getId()); // Set the ID of the user to update
+            statement.setString(3, user.getRole().name()); // Convert enum to string
+            statement.setInt(4, user.getId());
 
-            // Execute the update query
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -122,7 +109,7 @@ public class UserDaoImpl implements UserDao {
 
     /**
      * Deletes a user from the database by their unique ID.
-     * 
+     *
      * @param id the ID of the user to delete
      */
     @Override
@@ -131,7 +118,7 @@ public class UserDaoImpl implements UserDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setInt(1, id); // Set the ID parameter for the delete query
+            statement.setInt(1, id);
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -140,7 +127,7 @@ public class UserDaoImpl implements UserDao {
 
     /**
      * Retrieves a user from the database by their unique email address.
-     * 
+     *
      * @param email the email address of the user to retrieve
      * @return the User object if found, or null if no user with the given email
      *         exists
@@ -151,20 +138,32 @@ public class UserDaoImpl implements UserDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setString(1, email); // Set the email parameter for the query
+            statement.setString(1, email);
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                // Create a User object and set its fields
-                return new User(
-                        resultSet.getInt("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("email"),
-                        resultSet.getString("role"));
+                return mapResultSetToUser(resultSet);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null; // Return null if no user is found
+        return null;
+    }
+
+    /**
+     * Helper method to map a result set to a User object.
+     *
+     * @param resultSet the result set to map
+     * @return the User object
+     * @throws SQLException if a database access error occurs
+     */
+    private User mapResultSetToUser(ResultSet resultSet) throws SQLException {
+        User user = new User(
+                resultSet.getInt("id"),
+                resultSet.getString("name"),
+                resultSet.getString("email"),
+                UserRole.valueOf(resultSet.getString("role").toUpperCase())// Convert string to enum
+        );
+        return user;
     }
 }
