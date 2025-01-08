@@ -5,6 +5,7 @@ import com.library.dao.BookDaoImpl;
 import com.library.model.Book;
 import com.library.service.exceptions.BookNotFoundException;
 import com.library.service.exceptions.InvalidBookException;
+import com.library.util.ValidationUtil;
 
 import java.util.List;
 
@@ -31,15 +32,18 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public void addBook(Book book) {
-        if (book == null || book.getTitle() == null || book.getTitle().trim().isEmpty()) {
-            throw new InvalidBookException("Book title cannot be null or empty.");
+        if (book == null) {
+            throw new InvalidBookException("Book cannot be null.");
         }
-        if (book.getAuthor() == null || book.getAuthor().trim().isEmpty()) {
-            throw new InvalidBookException("Book author cannot be null or empty.");
-        }
-        if (book.getIsbn() == null || book.getIsbn().trim().isEmpty()) {
-            throw new InvalidBookException("Book ISBN cannot be null or empty.");
-        }
+
+        // Validate book fields before adding
+        ValidationUtil.validateNotEmpty(book.getTitle(), "Book title",
+                () -> new InvalidBookException("Book title cannot be null or empty."));
+        ValidationUtil.validateNotEmpty(book.getAuthor(), "Book author",
+                () -> new InvalidBookException("Book author cannot be null or empty."));
+        ValidationUtil.validateNotEmpty(book.getIsbn(), "Book ISBN",
+                () -> new InvalidBookException("Book ISBN cannot be null or empty."));
+
         bookDao.addBook(book);
     }
 
@@ -56,10 +60,13 @@ public class BookServiceImpl implements BookService {
         if (id <= 0) {
             throw new InvalidBookException("Book ID must be a positive integer.");
         }
+
+        // Retrieve book and check existence
         Book book = bookDao.getBookById(id);
         if (book == null) {
             throw new BookNotFoundException("Book with ID " + id + " not found.");
         }
+
         return book;
     }
 
@@ -86,19 +93,26 @@ public class BookServiceImpl implements BookService {
             throw new InvalidBookException("Invalid book ID.");
         }
 
+        // Check if the book exists before proceeding
         Book existingBook = bookDao.getBookById(book.getId());
         if (existingBook == null) {
             throw new BookNotFoundException("Book with ID " + book.getId() + " not found.");
         }
 
-        if (book.getTitle() != null && book.getTitle().trim().isEmpty()) {
-            throw new InvalidBookException("Book title cannot be empty.");
+        // Validate fields if updated
+        if (book.getTitle() != null) {
+            ValidationUtil.validateNotEmpty(book.getTitle(), "Book title",
+                    () -> new InvalidBookException("Book title cannot be empty."));
         }
-        if (book.getAuthor() != null && book.getAuthor().trim().isEmpty()) {
-            throw new InvalidBookException("Book author cannot be empty.");
+
+        if (book.getAuthor() != null) {
+            ValidationUtil.validateNotEmpty(book.getAuthor(), "Book author",
+                    () -> new InvalidBookException("Book author cannot be empty."));
         }
-        if (book.getIsbn() != null && book.getIsbn().trim().isEmpty()) {
-            throw new InvalidBookException("Book ISBN cannot be empty.");
+
+        if (book.getIsbn() != null) {
+            ValidationUtil.validateNotEmpty(book.getIsbn(), "Book ISBN",
+                    () -> new InvalidBookException("Book ISBN cannot be empty."));
         }
 
         bookDao.updateBook(book);
@@ -117,6 +131,7 @@ public class BookServiceImpl implements BookService {
             throw new InvalidBookException("Book ID must be a positive integer.");
         }
 
+        // Check if the book exists before proceeding
         Book book = bookDao.getBookById(id);
         if (book == null) {
             throw new BookNotFoundException("Book with ID " + id + " not found.");
@@ -135,9 +150,9 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public List<Book> getBooksByTitle(String title) {
-        if (title == null || title.trim().isEmpty()) {
-            throw new InvalidBookException("Book title cannot be null or empty.");
-        }
+        ValidationUtil.validateNotEmpty(title, "Book title",
+                () -> new InvalidBookException("Book title cannot be null or empty."));
+
         return bookDao.getBooksByTitle(title);
     }
 
@@ -151,9 +166,9 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public List<Book> getBooksByAuthor(String author) {
-        if (author == null || author.trim().isEmpty()) {
-            throw new InvalidBookException("Book author cannot be null or empty.");
-        }
+        ValidationUtil.validateNotEmpty(author, "Book author",
+                () -> new InvalidBookException("Book author cannot be null or empty."));
+
         return bookDao.getBooksByAuthor(author);
     }
 
@@ -167,18 +182,20 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public Book getBookByIsbn(String isbn) {
-        if (isbn == null || isbn.trim().isEmpty()) {
-            throw new InvalidBookException("Book ISBN cannot be null or empty.");
-        }
+        ValidationUtil.validateNotEmpty(isbn, "Book ISBN",
+                () -> new InvalidBookException("Book ISBN cannot be null or empty."));
+
+        // Check if the book exists before proceeding
         Book book = bookDao.getBookByIsbn(isbn);
         if (book == null) {
             throw new BookNotFoundException("Book with ISBN " + isbn + " not found.");
         }
+
         return book;
     }
 
     /**
-     * Updates the status of a book (e.g., AVAILABLE, BORROWED, RESERVED).
+     * Updates the status of a book (e.g., AVAILABLE, BORROWED).
      *
      * @param id     the ID of the book to update
      * @param status the new status of the book
@@ -190,10 +207,12 @@ public class BookServiceImpl implements BookService {
         if (id <= 0) {
             throw new InvalidBookException("Book ID must be a positive integer.");
         }
-        if (status == null || status.trim().isEmpty()) {
-            throw new InvalidBookException("Book status cannot be null or empty.");
-        }
 
+        // Validate book status before updating
+        ValidationUtil.validateNotEmpty(status, "Book status",
+                () -> new InvalidBookException("Book status cannot be null or empty."));
+
+        // Check if the book exists before proceeding
         Book book = bookDao.getBookById(id);
         if (book == null) {
             throw new BookNotFoundException("Book with ID " + id + " not found.");

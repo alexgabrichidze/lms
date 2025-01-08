@@ -5,6 +5,7 @@ import com.library.dao.UserDaoImpl;
 import com.library.model.User;
 import com.library.service.exceptions.UserNotFoundException;
 import com.library.service.exceptions.InvalidUserException;
+import com.library.util.ValidationUtil;
 
 import java.util.List;
 
@@ -24,19 +25,6 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Constructor to initialize the UserService with a custom UserDao
-     * implementation.
-     *
-     * @param userDao the UserDao implementation to use
-     */
-    public UserServiceImpl(UserDao userDao) {
-        if (userDao == null) {
-            throw new IllegalArgumentException("UserDao cannot be null.");
-        }
-        this.userDao = userDao;
-    }
-
-    /**
      * Creates a new user after validating the input.
      *
      * @param user the User object to create
@@ -47,13 +35,11 @@ public class UserServiceImpl implements UserService {
             throw new InvalidUserException("User cannot be null.");
         }
 
-        // Validate name
-        if (user.getName() == null || user.getName().trim().isEmpty()) {
-            throw new InvalidUserException("User name cannot be null or empty.");
-        }
-
-        // Validate email
-        validateEmail(user.getEmail());
+        // Validate fields using the utility methods
+        ValidationUtil.validateNotEmpty(user.getName(), "User name",
+                () -> new InvalidUserException("User name cannot be null or empty."));
+        ValidationUtil.validateEmail(user.getEmail(),
+                () -> new InvalidUserException("Invalid email format."));
 
         // Check if the email is already in use
         User existingUser = userDao.getUserByEmail(user.getEmail());
@@ -72,14 +58,14 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User getUserById(int id) {
-        if (id <= 0) {
-            throw new InvalidUserException("User ID must be a positive integer.");
-        }
+        ValidationUtil.validatePositiveId(id, "User ID",
+                () -> new InvalidUserException("User ID must be a positive integer."));
 
         User user = userDao.getUserById(id);
         if (user == null) {
             throw new UserNotFoundException("User with ID " + id + " not found.");
         }
+
         return user;
     }
 
@@ -100,9 +86,11 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void updateUser(User user) {
-        if (user == null || user.getId() <= 0) {
-            throw new InvalidUserException("Invalid user ID.");
+        if (user == null) {
+            throw new InvalidUserException("User cannot be null.");
         }
+        ValidationUtil.validatePositiveId(user.getId(), "User ID",
+                () -> new InvalidUserException("Invalid user ID."));
 
         User existingUser = userDao.getUserById(user.getId());
         if (existingUser == null) {
@@ -110,13 +98,15 @@ public class UserServiceImpl implements UserService {
         }
 
         // Validate name if updated
-        if (user.getName() != null && user.getName().trim().isEmpty()) {
-            throw new InvalidUserException("User name cannot be empty.");
+        if (user.getName() != null) {
+            ValidationUtil.validateNotEmpty(user.getName(), "User name",
+                    () -> new InvalidUserException("User name cannot be empty."));
         }
 
         // Validate email if updated
         if (user.getEmail() != null) {
-            validateEmail(user.getEmail());
+            ValidationUtil.validateEmail(user.getEmail(),
+                    () -> new InvalidUserException("Invalid email format."));
 
             // Check for email conflicts
             if (!user.getEmail().equals(existingUser.getEmail())) {
@@ -137,9 +127,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void deleteUser(int id) {
-        if (id <= 0) {
-            throw new InvalidUserException("User ID must be a positive integer.");
-        }
+        ValidationUtil.validatePositiveId(id, "User ID",
+                () -> new InvalidUserException("User ID must be a positive integer."));
 
         User user = userDao.getUserById(id);
         if (user == null) {
@@ -157,26 +146,13 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User getUserByEmail(String email) {
-        validateEmail(email);
+        ValidationUtil.validateEmail(email,
+                () -> new InvalidUserException("Invalid email format."));
 
         User user = userDao.getUserByEmail(email);
         if (user == null) {
             throw new UserNotFoundException("User with email " + email + " not found.");
         }
         return user;
-    }
-
-    /**
-     * Helper method to validate email format and null checks.
-     *
-     * @param email the email to validate
-     */
-    private void validateEmail(String email) {
-        if (email == null || email.trim().isEmpty()) {
-            throw new InvalidUserException("User email cannot be null or empty.");
-        }
-        if (!email.matches("^[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-            throw new InvalidUserException("Invalid email format.");
-        }
     }
 }
