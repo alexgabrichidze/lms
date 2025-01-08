@@ -54,22 +54,31 @@ public interface BookService {
     void deleteBook(int id);
 
     /**
-     * Searches for books by their title.
+     * Retrieves books by their title.
      *
      * @param title the title to search for (case-insensitive, partial matches
      *              allowed)
      * @return a list of books matching the title
      */
-    List<Book> searchBooksByTitle(String title);
+    List<Book> getBooksByTitle(String title);
 
     /**
-     * Searches for books by their author.
+     * Retrieves books by their author.
      *
      * @param author the author to search for (case-insensitive, partial matches
      *               allowed)
      * @return a list of books matching the author
      */
-    List<Book> searchBooksByAuthor(String author);
+    List<Book> getBooksByAuthor(String author);
+
+    /**
+     * Retrieves a book by its ISBN.
+     *
+     * @param isbn the ISBN to search for
+     * @return the Book object if found
+     * @throws BookNotFoundException if no book with the given ISBN exists
+     */
+    Book getBookByIsbn(String isbn);
 
     /**
      * Updates the status of a book (e.g., AVAILABLE, BORROWED, RESERVED).

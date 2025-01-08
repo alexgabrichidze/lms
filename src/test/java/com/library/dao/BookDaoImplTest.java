@@ -1,6 +1,5 @@
-package com.library;
+package com.library.dao;
 
-import com.library.dao.*;
 import com.library.model.Book;
 import com.library.util.ConnectionManager;
 

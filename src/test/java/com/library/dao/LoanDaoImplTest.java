@@ -1,7 +1,5 @@
-package com.library;
+package com.library.dao;
 
-import com.library.dao.LoanDao;
-import com.library.dao.LoanDaoImpl;
 import com.library.model.Loan;
 import com.library.util.ConnectionManager;
 

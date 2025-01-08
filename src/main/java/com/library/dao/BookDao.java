@@ -1,12 +1,12 @@
 package com.library.dao;
 
 import com.library.model.Book;
+
 import java.util.List;
 
 /**
- * Data Access Object (DAO) interface for managing Book entities.
- * Provides methods to perform CRUD (Create, Read, Update, Delete) operations on
- * the books table.
+ * Interface for managing books in the database.
+ * Provides methods for CRUD operations and search queries.
  */
 public interface BookDao {
 
@@ -14,13 +14,11 @@ public interface BookDao {
      * Adds a new book to the database.
      *
      * @param book the Book object to be added
-     * @throws IllegalArgumentException if the book object is null or contains
-     *                                  invalid data
      */
     void addBook(Book book);
 
     /**
-     * Retrieves a book by its ID.
+     * Retrieves a book by its unique ID.
      *
      * @param id the ID of the book to retrieve
      * @return the Book object if found, or null if no book with the given ID exists
@@ -28,27 +26,50 @@ public interface BookDao {
     Book getBookById(int id);
 
     /**
-     * Retrieves all books from the database.
+     * Retrieves all books in the database.
      *
-     * @return a list of all Book objects in the database, or an empty list if no
-     *         books are found
+     * @return a list of all Book objects
      */
     List<Book> getAllBooks();
 
     /**
      * Updates the details of an existing book in the database.
      *
-     * @param book the Book object containing updated information
-     * @throws IllegalArgumentException if the book object is null or contains
-     *                                  invalid data
+     * @param book the Book object containing the updated details
      */
     void updateBook(Book book);
+
+    /**
+     * Retrieves books by their title from the database.
+     *
+     * @param title the title to search for (case-insensitive, partial matches
+     *              allowed)
+     * @return a list of books matching the title
+     */
+    List<Book> getBooksByTitle(String title);
+
+    /**
+     * Retrieves books by their author from the database.
+     *
+     * @param author the author to search for (case-insensitive, partial matches
+     *               allowed)
+     * @return a list of books matching the author
+     */
+    List<Book> getBooksByAuthor(String author);
+
+    /**
+     * Retrieves a book by its ISBN from the database.
+     *
+     * @param isbn the ISBN to search for
+     * @return the Book object if found, or null if no book with the given ISBN
+     *         exists
+     */
+    Book getBookByIsbn(String isbn);
 
     /**
      * Deletes a book from the database by its ID.
      *
      * @param id the ID of the book to delete
-     * @throws IllegalArgumentException if the ID is invalid (e.g., negative)
      */
     void deleteBook(int id);
 }

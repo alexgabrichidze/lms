@@ -143,6 +143,106 @@ public class BookDaoImpl implements BookDao {
     }
 
     /**
+     * Retrieves books by their title from the database.
+     *
+     * @param title the title to search for (case-insensitive, partial matches
+     *              allowed)
+     * @return a list of books matching the title
+     */
+    @Override
+    public List<Book> getBooksByTitle(String title) {
+        List<Book> books = new ArrayList<>();
+        String sql = "SELECT id, title, author, isbn, published_date, status FROM books WHERE LOWER(title) LIKE ?";
+        try (Connection connection = ConnectionManager.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            // Use SQL LIKE with wildcards for partial matches
+            statement.setString(1, "%" + title.toLowerCase() + "%");
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                books.add(new Book(
+                        resultSet.getString("title"),
+                        resultSet.getString("author"),
+                        resultSet.getString("isbn"),
+                        resultSet.getDate("published_date") != null
+                                ? resultSet.getDate("published_date").toLocalDate()
+                                : null,
+                        resultSet.getString("status")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return books;
+    }
+
+    /**
+     * Retrieves books by their author from the database.
+     *
+     * @param author the author to search for (case-insensitive, partial matches
+     *               allowed)
+     * @return a list of books matching the author
+     */
+    @Override
+    public List<Book> getBooksByAuthor(String author) {
+        List<Book> books = new ArrayList<>();
+        String sql = "SELECT id, title, author, isbn, published_date, status FROM books WHERE LOWER(author) LIKE ?";
+        try (Connection connection = ConnectionManager.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            // Use SQL LIKE with wildcards for partial matches
+            statement.setString(1, "%" + author.toLowerCase() + "%");
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                books.add(new Book(
+                        resultSet.getString("title"),
+                        resultSet.getString("author"),
+                        resultSet.getString("isbn"),
+                        resultSet.getDate("published_date") != null
+                                ? resultSet.getDate("published_date").toLocalDate()
+                                : null,
+                        resultSet.getString("status")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return books;
+    }
+
+    /**
+     * Retrieves a book by its ISBN from the database.
+     *
+     * @param isbn the ISBN to search for
+     * @return the Book object if found, or null if no book with the given ISBN
+     *         exists
+     */
+    @Override
+    public Book getBookByIsbn(String isbn) {
+        String sql = "SELECT id, title, author, isbn, published_date, status FROM books WHERE isbn = ?";
+        try (Connection connection = ConnectionManager.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, isbn);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                return new Book(
+                        resultSet.getString("title"),
+                        resultSet.getString("author"),
+                        resultSet.getString("isbn"),
+                        resultSet.getDate("published_date") != null
+                                ? resultSet.getDate("published_date").toLocalDate()
+                                : null,
+                        resultSet.getString("status"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * Deletes a book from the database by its ID.
      *
      * @param id the ID of the book to delete

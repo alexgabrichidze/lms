@@ -1,9 +1,8 @@
-package com.library;
+package com.library.service;
 
 import com.library.dao.UserDao;
 import com.library.dao.UserDaoImpl;
 import com.library.model.User;
-import com.library.service.UserServiceImpl;
 import com.library.service.exceptions.InvalidUserException;
 import com.library.service.exceptions.UserNotFoundException;
 import com.library.util.ConnectionManager;

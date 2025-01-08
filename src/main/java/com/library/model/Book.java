@@ -13,7 +13,16 @@ public class Book {
     private String author; // Author of the book
     private String isbn; // ISBN of the book (13-digit numeric string)
     private LocalDate publishedDate; // Date the book was published
-    private String status; // Status of the book (e.g., AVAILABLE, BORROWED)
+    private String status; // Status of the book (e.g., AVAILABLE, BORROWED, RESERVED)
+
+    /**
+     * Enum representing the status of a book in the library.
+     */
+    public enum BookStatus {
+        AVAILABLE,
+        BORROWED,
+        RESERVED
+    }
 
     /**
      * Default constructor for creating an empty Book object.

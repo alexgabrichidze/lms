@@ -1,7 +1,5 @@
-package com.library;
+package com.library.dao;
 
-import com.library.dao.UserDao;
-import com.library.dao.UserDaoImpl;
 import com.library.model.User;
 import com.library.util.ConnectionManager;
 

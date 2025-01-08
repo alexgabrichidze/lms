@@ -13,6 +13,7 @@ import java.util.List;
  * Handles business logic for user-related operations.
  */
 public class UserServiceImpl implements UserService {
+
     private final UserDao userDao;
 
     /**
