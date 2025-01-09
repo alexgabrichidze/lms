@@ -25,6 +25,15 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
+     * Constructor to initialize UserService with custom UserDao class.
+     *
+     * @param userDao the custom UserDao implementation to use
+     */
+    public UserServiceImpl(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    /**
      * Creates a new user after validating the input.
      *
      * @param user the User object to create

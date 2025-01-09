@@ -16,6 +16,7 @@ import java.sql.Statement;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import org.mockito.Mockito.*;
 
 /**
  * Test class for UserServiceImpl.
