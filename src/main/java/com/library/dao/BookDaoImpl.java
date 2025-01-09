@@ -23,15 +23,18 @@ public class BookDaoImpl implements BookDao {
     @Override
     public void addBook(Book book) {
         String sql = "INSERT INTO books (title, author, isbn, published_date, status) VALUES (?, ?, ?, ?, ?) RETURNING id";
+
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Set the values of the prepared statement
             statement.setString(1, book.getTitle());
             statement.setString(2, book.getAuthor());
             statement.setString(3, book.getIsbn());
             statement.setDate(4, book.getPublishedDate() != null ? Date.valueOf(book.getPublishedDate()) : null);
             statement.setString(5, book.getStatus().name()); // Convert enum to string
 
+            // Execute the statement, retrieve and set the generated ID
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 book.setId(resultSet.getInt("id")); // Set the generated ID in the Book object
@@ -50,19 +53,22 @@ public class BookDaoImpl implements BookDao {
     @Override
     public Book getBookById(int id) {
         String sql = "SELECT id, title, author, isbn, published_date, status FROM books WHERE id = ?";
+
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Set the value of the prepared statement
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
 
+            // Check if a book was found and return it
             if (resultSet.next()) {
-                return mapResultSetToBook(resultSet);
+                return mapResultSetToBook(resultSet); // Call the helper method to map the result set to a Book object
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return null; // Return null if no book was found
     }
 
     /**
@@ -74,11 +80,17 @@ public class BookDaoImpl implements BookDao {
     public List<Book> getAllBooks() {
         List<Book> books = new ArrayList<>();
         String sql = "SELECT id, title, author, isbn, published_date, status FROM books";
+
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql);
+
+                // Execute the query and get the result set
                 ResultSet resultSet = statement.executeQuery()) {
 
+            // Iterate over the result set and add each book to the list
             while (resultSet.next()) {
+
+                // Call the helper method to map the result set to a Book object
                 books.add(mapResultSetToBook(resultSet));
             }
         } catch (SQLException e) {
@@ -95,9 +107,11 @@ public class BookDaoImpl implements BookDao {
     @Override
     public void updateBook(Book book) {
         String sql = "UPDATE books SET title = ?, author = ?, isbn = ?, published_date = ?, status = ? WHERE id = ?";
+
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Set the values of the prepared statement
             statement.setString(1, book.getTitle());
             statement.setString(2, book.getAuthor());
             statement.setString(3, book.getIsbn());
@@ -105,6 +119,7 @@ public class BookDaoImpl implements BookDao {
             statement.setString(5, book.getStatus().name()); // Convert enum to string
             statement.setInt(6, book.getId());
 
+            // Execute the statement
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -122,6 +137,7 @@ public class BookDaoImpl implements BookDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Set the value of the prepared statement
             statement.setInt(1, id);
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -140,14 +156,18 @@ public class BookDaoImpl implements BookDao {
     public List<Book> getBooksByTitle(String title) {
         List<Book> books = new ArrayList<>();
         String sql = "SELECT id, title, author, isbn, published_date, status FROM books WHERE LOWER(title) LIKE ?";
+
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Set the value of the prepared statement
             statement.setString(1, "%" + title.toLowerCase() + "%");
             ResultSet resultSet = statement.executeQuery();
 
+            // Iterate over the result set and add each book to the list
             while (resultSet.next()) {
-                books.add(mapResultSetToBook(resultSet));
+                books.add(mapResultSetToBook(resultSet)); // Call the helper method to map the result set to a Book
+                                                          // object
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -166,19 +186,25 @@ public class BookDaoImpl implements BookDao {
     public List<Book> getBooksByAuthor(String author) {
         List<Book> books = new ArrayList<>();
         String sql = "SELECT id, title, author, isbn, published_date, status FROM books WHERE LOWER(author) LIKE ?";
+
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Set the value of the prepared statement
             statement.setString(1, "%" + author.toLowerCase() + "%");
+
+            // Execute the query and get the result set
             ResultSet resultSet = statement.executeQuery();
 
+            // Iterate over the result set and add each book to the list
             while (resultSet.next()) {
-                books.add(mapResultSetToBook(resultSet));
+                books.add(mapResultSetToBook(resultSet)); // Call the helper method to map the result set to a Book
+                                                          // object
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return books;
+        return books; // Return the list of books
     }
 
     /**
@@ -191,19 +217,22 @@ public class BookDaoImpl implements BookDao {
     @Override
     public Book getBookByIsbn(String isbn) {
         String sql = "SELECT id, title, author, isbn, published_date, status FROM books WHERE isbn = ?";
+
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Set the value of the prepared statement
             statement.setString(1, isbn);
             ResultSet resultSet = statement.executeQuery();
 
+            // Check if a book was found and return it
             if (resultSet.next()) {
-                return mapResultSetToBook(resultSet);
+                return mapResultSetToBook(resultSet); // Call the helper method to map the result set to a Book object
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return null; // Return null if no book was found
     }
 
     /**
@@ -214,6 +243,8 @@ public class BookDaoImpl implements BookDao {
      * @throws SQLException if a database access error occurs
      */
     private Book mapResultSetToBook(ResultSet resultSet) throws SQLException {
+
+        // Create a new Book object and set its attributes
         Book book = new Book(
                 resultSet.getString("title"),
                 resultSet.getString("author"),
@@ -221,9 +252,10 @@ public class BookDaoImpl implements BookDao {
                 resultSet.getDate("published_date") != null
                         ? resultSet.getDate("published_date").toLocalDate()
                         : null,
-                BookStatus.valueOf(resultSet.getString("status").toUpperCase()) // Convert string to enum
+                BookStatus.valueOf(resultSet.getString("status").toUpperCase()) // Convert string to enum and set status
         );
         book.setId(resultSet.getInt("id")); // Explicitly set the book's ID
-        return book;
+
+        return book; // Return the Book object
     }
 }

@@ -17,17 +17,22 @@ public class LoanDaoImpl implements LoanDao {
     @Override
     public void addLoan(Loan loan) {
         String sql = "INSERT INTO loans (user_id, book_id, loan_date, return_date) VALUES (?, ?, ?, ?) RETURNING id";
+        
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Set the values of the prepared statement
             statement.setInt(1, loan.getUserId());
             statement.setInt(2, loan.getBookId());
             statement.setDate(3, Date.valueOf(loan.getLoanDate()));
-            statement.setDate(4, loan.getReturnDate() != null ? Date.valueOf(loan.getReturnDate()) : null);
+            statement.setDate(4, loan.getReturnDate() != null ? Date.valueOf(loan.getReturnDate()) : null); // Nullable
 
+            // Execute the statement, retrieve and set the generated ID
             ResultSet resultSet = statement.executeQuery();
+
+            // Set the generated ID in the Loan object
             if (resultSet.next()) {
-                loan.setId(resultSet.getInt("id")); // Set the generated ID in the Loan object
+                loan.setId(resultSet.getInt("id"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -37,12 +42,17 @@ public class LoanDaoImpl implements LoanDao {
     @Override
     public Loan getLoanById(int id) {
         String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans WHERE id = ?";
+
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Set the value of the prepared statement
             statement.setInt(1, id);
+
+            // Execute the statement and retrieve the result set
             ResultSet resultSet = statement.executeQuery();
 
+            // Create and return a Loan object if a record is found
             if (resultSet.next()) {
                 return new Loan(
                         resultSet.getInt("id"),
@@ -50,22 +60,26 @@ public class LoanDaoImpl implements LoanDao {
                         resultSet.getInt("book_id"),
                         resultSet.getDate("loan_date").toLocalDate(),
                         resultSet.getDate("return_date") != null ? resultSet.getDate("return_date").toLocalDate()
-                                : null);
+                                : null); // Nullable
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return null; // Return null if no record is found
     }
 
     @Override
     public List<Loan> getAllLoans() {
         List<Loan> loans = new ArrayList<>();
         String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans";
+        
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql);
+
+                // Execute the statement and retrieve the result set
                 ResultSet resultSet = statement.executeQuery()) {
 
+            // Create a Loan object for each record and add it to the list
             while (resultSet.next()) {
                 loans.add(new Loan(
                         resultSet.getInt("id"),
@@ -73,26 +87,29 @@ public class LoanDaoImpl implements LoanDao {
                         resultSet.getInt("book_id"),
                         resultSet.getDate("loan_date").toLocalDate(),
                         resultSet.getDate("return_date") != null ? resultSet.getDate("return_date").toLocalDate()
-                                : null));
+                                : null)); // Nullable
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return loans;
+        return loans; // Return the list of loans
     }
 
     @Override
     public void updateLoan(Loan loan) {
         String sql = "UPDATE loans SET user_id = ?, book_id = ?, loan_date = ?, return_date = ? WHERE id = ?";
+
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Set the values of the prepared statement
             statement.setInt(1, loan.getUserId());
             statement.setInt(2, loan.getBookId());
             statement.setDate(3, Date.valueOf(loan.getLoanDate()));
-            statement.setDate(4, loan.getReturnDate() != null ? Date.valueOf(loan.getReturnDate()) : null);
+            statement.setDate(4, loan.getReturnDate() != null ? Date.valueOf(loan.getReturnDate()) : null); // Nullable
             statement.setInt(5, loan.getId());
 
+            // Execute the statement
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -102,10 +119,14 @@ public class LoanDaoImpl implements LoanDao {
     @Override
     public void deleteLoan(int id) {
         String sql = "DELETE FROM loans WHERE id = ?";
+
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Set the value of the prepared statement
             statement.setInt(1, id);
+
+            // Execute the statement
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -116,12 +137,17 @@ public class LoanDaoImpl implements LoanDao {
     public List<Loan> getLoansByUserId(int userId) {
         List<Loan> loans = new ArrayList<>();
         String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans WHERE user_id = ?";
+
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Set the value of the prepared statement
             statement.setInt(1, userId);
+
+            // Execute the statement and retrieve the result set
             ResultSet resultSet = statement.executeQuery();
 
+            // Create a Loan object for each record and add it to the list
             while (resultSet.next()) {
                 loans.add(new Loan(
                         resultSet.getInt("id"),
@@ -129,24 +155,29 @@ public class LoanDaoImpl implements LoanDao {
                         resultSet.getInt("book_id"),
                         resultSet.getDate("loan_date").toLocalDate(),
                         resultSet.getDate("return_date") != null ? resultSet.getDate("return_date").toLocalDate()
-                                : null));
+                                : null)); // Nullable
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return loans;
+        return loans; // Return the list of loans
     }
 
     @Override
     public List<Loan> getLoansByBookId(int bookId) {
         List<Loan> loans = new ArrayList<>();
         String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans WHERE book_id = ?";
+
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Set the value of the prepared statement
             statement.setInt(1, bookId);
+
+            // Execute the statement and retrieve the result set
             ResultSet resultSet = statement.executeQuery();
 
+            // Create a Loan object for each record and add it to the list
             while (resultSet.next()) {
                 loans.add(new Loan(
                         resultSet.getInt("id"),
@@ -154,22 +185,24 @@ public class LoanDaoImpl implements LoanDao {
                         resultSet.getInt("book_id"),
                         resultSet.getDate("loan_date").toLocalDate(),
                         resultSet.getDate("return_date") != null ? resultSet.getDate("return_date").toLocalDate()
-                                : null));
+                                : null)); // Nullable
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return loans;
+        return loans; // Return the list of loans
     }
 
     @Override
     public List<Loan> getActiveLoans() {
         List<Loan> loans = new ArrayList<>();
         String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans WHERE return_date IS NULL";
+
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql);
                 ResultSet resultSet = statement.executeQuery()) {
 
+            // Create a Loan object for each record and add it to the list
             while (resultSet.next()) {
                 loans.add(new Loan(
                         resultSet.getInt("id"),
@@ -182,6 +215,6 @@ public class LoanDaoImpl implements LoanDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return loans;
+        return loans; // Return the list of active loans
     }
 }
