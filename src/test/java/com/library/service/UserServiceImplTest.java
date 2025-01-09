@@ -21,8 +21,6 @@ import static org.mockito.Mockito.*;
  * Test class for UserServiceImpl.
  * Tests CRUD operations and validations for UserService.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
 
@@ -33,12 +31,11 @@ public class UserServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        reset(userDao); // Reset mock interactions before each test
         userService = new UserServiceImpl(userDao);
-        reset(userDao);
     }
 
     @Test
-    @Order(1)
     void testCreateUser() {
         User user = new User(0, "John Doe", "john.doe@example.com", UserRole.USER);
 
@@ -56,7 +53,6 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @Order(2)
     void testCreateUserInvalidInput() {
         // Null user
         assertThrows(InvalidUserException.class, () -> userService.createUser(null),
@@ -77,7 +73,6 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @Order(3)
     void testGetUserByIdUserService() {
         int userId = 1;
 
@@ -96,7 +91,6 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @Order(4)
     void testGetUserByIdNotFound() {
         int nonExistentUserId = 9999;
 
@@ -117,7 +111,6 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @Order(5)
     void testGetAllUsersUserService() {
         // Mock a list of users
         List<User> mockUsers = List.of(
@@ -149,7 +142,6 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @Order(6)
     void testUpdateUser() {
         // Define the user ID and mock data
         int userId = 1;
@@ -173,7 +165,6 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @Order(7)
     void testUpdateUserInvalid() {
         // Define a non-existent user
         int nonExistentUserId = 9999;
@@ -192,7 +183,6 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @Order(8)
     void testDeleteUser() {
         // Define the ID and mock user
         int userId = 1;
@@ -210,7 +200,6 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @Order(9)
     void testGetUserByEmail() {
         // Define email and mock user
         String email = "test.email@example.com";
@@ -233,7 +222,6 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @Order(10)
     void testGetUserByEmailNotFound() {
         // Define email for a user that doesn't exist
         String nonExistentEmail = "nonexistent@example.com";

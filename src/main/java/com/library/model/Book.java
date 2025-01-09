@@ -28,14 +28,33 @@ public class Book {
      * @param author        the author of the book
      * @param isbn          the ISBN of the book
      * @param publishedDate the publication date of the book
-     * @param status        the status of the book (default is AVAILABLE if null)
+     * @param status        the status of the book
      */
     public Book(String title, String author, String isbn, LocalDate publishedDate, BookStatus status) {
-        this.setTitle(title); // Validate and set the title
-        this.setAuthor(author); // Validate and set the author
-        this.setIsbn(isbn); // Validate and set the ISBN
-        this.setPublishedDate(publishedDate); // Validate and set the publication date
-        this.setStatus(status == null ? BookStatus.AVAILABLE : status); // Default status is AVAILABLE
+        this.title = title;
+        this.author = author;
+        this.isbn = isbn;
+        this.publishedDate = publishedDate;
+        this.status = status;
+    }
+
+    /**
+     * Parameterized constructor for creating a Book with specified attributes.
+     *
+     * @param id            the id of the book
+     * @param title         the title of the book
+     * @param author        the author of the book
+     * @param isbn          the ISBN of the book
+     * @param publishedDate the publication date of the book
+     * @param status        the status of the book
+     */
+    public Book(int id, String title, String author, String isbn, LocalDate publishedDate, BookStatus status) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.isbn = isbn;
+        this.publishedDate = publishedDate;
+        this.status = status;
     }
 
     /**
@@ -71,9 +90,6 @@ public class Book {
      * @param title the book's title
      */
     public void setTitle(String title) {
-        if (title == null || title.trim().isEmpty()) {
-            throw new IllegalArgumentException("Title cannot be null or empty.");
-        }
         this.title = title;
     }
 
@@ -92,9 +108,6 @@ public class Book {
      * @param author the book's author
      */
     public void setAuthor(String author) {
-        if (author == null || author.trim().isEmpty()) {
-            throw new IllegalArgumentException("Author cannot be null or empty.");
-        }
         this.author = author;
     }
 
@@ -113,9 +126,6 @@ public class Book {
      * @param isbn the book's ISBN
      */
     public void setIsbn(String isbn) {
-        if (isbn == null || isbn.trim().isEmpty() || isbn.length() != 13 || !isbn.matches("\\d+")) {
-            throw new IllegalArgumentException("ISBN must be a 13-digit numeric string.");
-        }
         this.isbn = isbn;
     }
 
@@ -134,9 +144,6 @@ public class Book {
      * @param publishedDate the book's publication date
      */
     public void setPublishedDate(LocalDate publishedDate) {
-        if (publishedDate != null && publishedDate.isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("Published date cannot be in the future.");
-        }
         this.publishedDate = publishedDate;
     }
 
@@ -150,12 +157,12 @@ public class Book {
     }
 
     /**
-     * Sets the status of the book. Defaults to AVAILABLE if null.
+     * Sets the status of the book.
      *
      * @param status the book's status
      */
     public void setStatus(BookStatus status) {
-        this.status = status == null ? BookStatus.AVAILABLE : status;
+        this.status = status;
     }
 
     /**

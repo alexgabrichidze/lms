@@ -22,33 +22,33 @@ public class Loan {
     /**
      * Parameterized constructor for creating a Loan with specified attributes.
      *
-     * @param userId     the ID of the user who borrowed the book (must be positive)
-     * @param bookId     the ID of the borrowed book (must be positive)
-     * @param loanDate   the loan date (defaults to current date if null)
-     * @param returnDate the return date (nullable, must not be before loan date)
+     * @param userId     the ID of the user who borrowed the book
+     * @param bookId     the ID of the borrowed book
+     * @param loanDate   the loan date
+     * @param returnDate the return date (nullable)
      */
     public Loan(int userId, int bookId, LocalDate loanDate, LocalDate returnDate) {
-        this.setUserId(userId); // Validates and sets the user ID
-        this.setBookId(bookId); // Validates and sets the book ID
-        this.setLoanDate(loanDate); // Validates and sets the loan date
-        this.setReturnDate(returnDate); // Validates and sets the return date
+        this.userId = userId;
+        this.bookId = bookId;
+        this.loanDate = loanDate;
+        this.returnDate = returnDate;
     }
 
     /**
      * Parameterized constructor for creating a Loan with specified attributes.
      *
      * @param id         the unique identifier of the loan
-     * @param userId     the ID of the user who borrowed the book (must be positive)
-     * @param bookId     the ID of the borrowed book (must be positive)
-     * @param loanDate   the loan date (defaults to current date if null)
-     * @param returnDate the return date (nullable, must not be before loan date)
+     * @param userId     the ID of the user who borrowed the book
+     * @param bookId     the ID of the borrowed book
+     * @param loanDate   the loan date
+     * @param returnDate the return date (nullable)
      */
     public Loan(int id, int userId, int bookId, LocalDate loanDate, LocalDate returnDate) {
-        this.setId(id); // Validates and sets the loan ID
-        this.setUserId(userId); // Validates and sets the user ID
-        this.setBookId(bookId); // Validates and sets the book ID
-        this.setLoanDate(loanDate); // Validates and sets the loan date
-        this.setReturnDate(returnDate); // Validates and sets the return date
+        this.id = id;
+        this.userId = userId;
+        this.bookId = bookId;
+        this.loanDate = loanDate;
+        this.returnDate = returnDate;
     }
 
     /**
@@ -63,13 +63,9 @@ public class Loan {
     /**
      * Sets the unique identifier of the loan.
      *
-     * @param id the loan ID (must be non-negative)
-     * @throws IllegalArgumentException if the ID is negative
+     * @param id the loan ID
      */
     public void setId(int id) {
-        if (id < 0) {
-            throw new IllegalArgumentException("ID cannot be negative.");
-        }
         this.id = id;
     }
 
@@ -85,13 +81,9 @@ public class Loan {
     /**
      * Sets the user ID associated with the loan.
      *
-     * @param userId the user ID (must be positive)
-     * @throws IllegalArgumentException if the user ID is not positive
+     * @param userId the user ID
      */
     public void setUserId(int userId) {
-        if (userId <= 0) {
-            throw new IllegalArgumentException("User ID must be positive.");
-        }
         this.userId = userId;
     }
 
@@ -107,13 +99,9 @@ public class Loan {
     /**
      * Sets the book ID associated with the loan.
      *
-     * @param bookId the book ID (must be positive)
-     * @throws IllegalArgumentException if the book ID is not positive
+     * @param bookId the book ID
      */
     public void setBookId(int bookId) {
-        if (bookId <= 0) {
-            throw new IllegalArgumentException("Book ID must be positive.");
-        }
         this.bookId = bookId;
     }
 
@@ -129,14 +117,10 @@ public class Loan {
     /**
      * Sets the loan date.
      *
-     * @param loanDate the loan date (defaults to current date if null)
+     * @param loanDate the loan date
      */
     public void setLoanDate(LocalDate loanDate) {
-        if (loanDate == null) {
-            this.loanDate = LocalDate.now(); // Default to current date
-        } else {
-            this.loanDate = loanDate;
-        }
+        this.loanDate = loanDate;
     }
 
     /**
@@ -151,13 +135,9 @@ public class Loan {
     /**
      * Sets the return date of the loan.
      *
-     * @param returnDate the return date (nullable, must not be before loan date)
-     * @throws IllegalArgumentException if return date is before loan date
+     * @param returnDate the return date (nullable)
      */
     public void setReturnDate(LocalDate returnDate) {
-        if (returnDate != null && returnDate.isBefore(this.loanDate)) {
-            throw new IllegalArgumentException("Return date cannot be before the loan date.");
-        }
         this.returnDate = returnDate;
     }
 

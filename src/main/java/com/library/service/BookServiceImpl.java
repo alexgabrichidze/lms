@@ -26,6 +26,15 @@ public class BookServiceImpl implements BookService {
     }
 
     /**
+     * Constructor to initialize BookService with custom BookDao class.
+     *
+     * @param bookDao the custom BookDao implementation to use
+     */
+    public BookServiceImpl(BookDao bookDao) {
+        this.bookDao = bookDao;
+    }
+
+    /**
      * Adds a new book to the library after validation.
      *
      * @param book the Book object to add
