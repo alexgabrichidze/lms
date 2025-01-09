@@ -4,9 +4,11 @@ import com.library.dao.BookDao;
 import com.library.dao.BookDaoImpl;
 import com.library.model.Book;
 import com.library.model.BookStatus;
+
 import com.library.service.exceptions.BookNotFoundException;
 import com.library.service.exceptions.InvalidBookException;
-import com.library.util.ValidationUtil;
+
+import static com.library.util.ValidationUtil.*;
 
 import java.util.List;
 
@@ -16,13 +18,13 @@ import java.util.List;
  */
 public class BookServiceImpl implements BookService {
 
-    private final BookDao bookDao;
+    private final BookDao bookDao; // Data access object for books
 
     /**
      * Constructor to initialize the BookDao implementation.
      */
     public BookServiceImpl() {
-        this.bookDao = new BookDaoImpl();
+        this.bookDao = new BookDaoImpl(); // Default implementation
     }
 
     /**
@@ -31,7 +33,7 @@ public class BookServiceImpl implements BookService {
      * @param bookDao the custom BookDao implementation to use
      */
     public BookServiceImpl(BookDao bookDao) {
-        this.bookDao = bookDao;
+        this.bookDao = bookDao; // Custom implementation
     }
 
     /**
@@ -47,11 +49,11 @@ public class BookServiceImpl implements BookService {
         }
 
         // Validate book fields before adding
-        ValidationUtil.validateNotEmpty(book.getTitle(), "Book title",
+        validateNotEmpty(book.getTitle(), "Book title",
                 () -> new InvalidBookException("Book title cannot be null or empty."));
-        ValidationUtil.validateNotEmpty(book.getAuthor(), "Book author",
+        validateNotEmpty(book.getAuthor(), "Book author",
                 () -> new InvalidBookException("Book author cannot be null or empty."));
-        ValidationUtil.validateNotEmpty(book.getIsbn(), "Book ISBN",
+        validateNotEmpty(book.getIsbn(), "Book ISBN",
                 () -> new InvalidBookException("Book ISBN cannot be null or empty."));
 
         // Use BookStatus enum for default status
@@ -59,7 +61,7 @@ public class BookServiceImpl implements BookService {
             book.setStatus(BookStatus.AVAILABLE);
         }
 
-        bookDao.addBook(book);
+        bookDao.addBook(book); // Add the book
     }
 
     /**
@@ -72,9 +74,10 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public Book getBookById(int id) {
-        if (id <= 0) {
-            throw new InvalidBookException("Book ID must be a positive integer.");
-        }
+
+        // Validate book ID (must be positive)
+        validatePositiveId(id, "Book ID",
+                () -> new InvalidBookException("Book ID must be a positive integer."));
 
         // Retrieve book and check existence
         Book book = bookDao.getBookById(id);
@@ -82,7 +85,7 @@ public class BookServiceImpl implements BookService {
             throw new BookNotFoundException("Book with ID " + id + " not found.");
         }
 
-        return book;
+        return book; // Return the book if found
     }
 
     /**
@@ -104,6 +107,8 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public void updateBook(Book book) {
+
+        // Validate book ID (must be positive and not null)
         if (book == null || book.getId() <= 0) {
             throw new InvalidBookException("Invalid book ID.");
         }
@@ -114,23 +119,23 @@ public class BookServiceImpl implements BookService {
             throw new BookNotFoundException("Book with ID " + book.getId() + " not found.");
         }
 
-        // Validate fields if updated
+        // Validate fields title, author, and ISBN, if updated
         if (book.getTitle() != null) {
-            ValidationUtil.validateNotEmpty(book.getTitle(), "Book title",
+            validateNotEmpty(book.getTitle(), "Book title",
                     () -> new InvalidBookException("Book title cannot be empty."));
         }
 
         if (book.getAuthor() != null) {
-            ValidationUtil.validateNotEmpty(book.getAuthor(), "Book author",
+            validateNotEmpty(book.getAuthor(), "Book author",
                     () -> new InvalidBookException("Book author cannot be empty."));
         }
 
         if (book.getIsbn() != null) {
-            ValidationUtil.validateNotEmpty(book.getIsbn(), "Book ISBN",
+            validateNotEmpty(book.getIsbn(), "Book ISBN",
                     () -> new InvalidBookException("Book ISBN cannot be empty."));
         }
 
-        bookDao.updateBook(book);
+        bookDao.updateBook(book); // Update the book
     }
 
     /**
@@ -142,9 +147,10 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public void deleteBook(int id) {
-        if (id <= 0) {
-            throw new InvalidBookException("Book ID must be a positive integer.");
-        }
+
+        // Validate book ID (must be positive)
+        validatePositiveId(id, "Book ID",
+                () -> new InvalidBookException("Book ID must be a positive integer."));
 
         // Check if the book exists before proceeding
         Book book = bookDao.getBookById(id);
@@ -152,7 +158,7 @@ public class BookServiceImpl implements BookService {
             throw new BookNotFoundException("Book with ID " + id + " not found.");
         }
 
-        bookDao.deleteBook(id);
+        bookDao.deleteBook(id); // Delete the book
     }
 
     /**
@@ -165,10 +171,12 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public List<Book> getBooksByTitle(String title) {
-        ValidationUtil.validateNotEmpty(title, "Book title",
+
+        // Validate book title before fetching the list of books
+        validateNotEmpty(title, "Book title",
                 () -> new InvalidBookException("Book title cannot be null or empty."));
 
-        return bookDao.getBooksByTitle(title);
+        return bookDao.getBooksByTitle(title); // Return the list of books
     }
 
     /**
@@ -181,10 +189,12 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public List<Book> getBooksByAuthor(String author) {
-        ValidationUtil.validateNotEmpty(author, "Book author",
+
+        // Validate book author before fetching the list of books
+        validateNotEmpty(author, "Book author",
                 () -> new InvalidBookException("Book author cannot be null or empty."));
 
-        return bookDao.getBooksByAuthor(author);
+        return bookDao.getBooksByAuthor(author); // Return the list of books
     }
 
     /**
@@ -197,7 +207,9 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public Book getBookByIsbn(String isbn) {
-        ValidationUtil.validateNotEmpty(isbn, "Book ISBN",
+
+        // Validate book ISBN before fetching the book
+        validateNotEmpty(isbn, "Book ISBN",
                 () -> new InvalidBookException("Book ISBN cannot be null or empty."));
 
         // Check if the book exists before proceeding
@@ -206,7 +218,7 @@ public class BookServiceImpl implements BookService {
             throw new BookNotFoundException("Book with ISBN " + isbn + " not found.");
         }
 
-        return book;
+        return book; // Return the book if found
     }
 
     /**
@@ -219,9 +231,10 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public void updateBookStatus(int id, BookStatus status) {
-        if (id <= 0) {
-            throw new InvalidBookException("Book ID must be a positive integer.");
-        }
+
+        // Validate book ID (must be positive)
+        validatePositiveId(id, "Book ID",
+                () -> new InvalidBookException("Book ID must be a positive integer."));
 
         // Validate book status before updating
         if (status == null) {
@@ -234,7 +247,7 @@ public class BookServiceImpl implements BookService {
             throw new BookNotFoundException("Book with ID " + id + " not found.");
         }
 
-        book.setStatus(status);
-        bookDao.updateBook(book);
+        book.setStatus(status); // Update the book status
+        bookDao.updateBook(book); // Update the book
     }
 }

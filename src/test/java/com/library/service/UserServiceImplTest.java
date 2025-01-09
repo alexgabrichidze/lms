@@ -25,18 +25,28 @@ import static org.mockito.Mockito.*;
 public class UserServiceImplTest {
 
     @Mock
-    private UserDao userDao;
+    private UserDao userDao; // Mock User DAO for testing
 
-    private UserServiceImpl userService;
+    private UserServiceImpl userService; // Service implementation to test
 
+    /**
+     * Set up before each test. Resets mock interactions and initializes service.
+     */
     @BeforeEach
     void setUp() {
         reset(userDao); // Reset mock interactions before each test
-        userService = new UserServiceImpl(userDao);
+        userService = new UserServiceImpl(userDao); // Initialize the service with the mock DAO
     }
 
+    /**
+     * Tests the creation of a new user with valid inputs.
+     * Ensures that the user is added successfully and DAO methods are called as
+     * expected.
+     */
     @Test
     void testCreateUser() {
+
+        // Create a mock user
         User user = new User(0, "John Doe", "john.doe@example.com", UserRole.USER);
 
         // Define behavior for mock UserDao
@@ -52,6 +62,11 @@ public class UserServiceImplTest {
         assertEquals(UserRole.USER, user.getRole());
     }
 
+    /**
+     * Tests the creation of a user with invalid inputs.
+     * Verifies that appropriate exceptions are thrown for null or invalid data
+     * and that no interactions are made with the DAO.
+     */
     @Test
     void testCreateUserInvalidInput() {
         // Null user
@@ -72,24 +87,40 @@ public class UserServiceImplTest {
         verifyNoInteractions(userDao); // Ensure no DAO interactions
     }
 
+    /**
+     * Tests the retrieval of a user by their ID when the user exists.
+     * Ensures that the correct user data is returned and the DAO method is called
+     * as expected.
+     */
     @Test
-    void testGetUserByIdUserService() {
+    void testGetUserById() {
         int userId = 1;
 
+        // Create a mock user with the specified ID
         User mockUser = new User(userId, "John Doe", "john.doe@example.com",
                 UserRole.USER);
+
+        // Define behavior for mock UserDao: return a user with the specified ID
         when(userDao.getUserById(userId)).thenReturn(mockUser);
 
+        // Call the service method
         User user = userService.getUserById(userId);
 
+        // Assert the returned user's properties
         assertNotNull(user, "User should be found by ID");
         assertEquals("John Doe", user.getName(), "Name should match");
         assertEquals("john.doe@example.com", user.getEmail(), "Email should match");
         assertEquals(UserRole.USER, user.getRole(), "Role should match");
 
+        // Verify the DAO method was called exactly once
         verify(userDao, times(1)).getUserById(userId);
     }
 
+    /**
+     * Tests the retrieval of a user by their ID when the user does not exist.
+     * Verifies that a UserNotFoundException is thrown and the correct DAO method is
+     * called.
+     */
     @Test
     void testGetUserByIdNotFound() {
         int nonExistentUserId = 9999;
@@ -110,8 +141,13 @@ public class UserServiceImplTest {
         verify(userDao, times(1)).getUserById(nonExistentUserId);
     }
 
+    /**
+     * Tests the retrieval of all users from the database.
+     * Verifies that the correct list of users is returned and the DAO method is
+     * called.
+     */
     @Test
-    void testGetAllUsersUserService() {
+    void testGetAllUsers() {
         // Mock a list of users
         List<User> mockUsers = List.of(
                 new User(1, "John Doe", "john.doe@example.com", UserRole.USER),
@@ -141,6 +177,11 @@ public class UserServiceImplTest {
         verify(userDao, times(1)).getAllUsers();
     }
 
+    /**
+     * Tests the update of an existing user's details with valid data.
+     * Verifies that the DAO methods for retrieving and updating the user are called
+     * as expected.
+     */
     @Test
     void testUpdateUser() {
         // Define the user ID and mock data
@@ -164,6 +205,11 @@ public class UserServiceImplTest {
         assertEquals(UserRole.USER, existingUser.getRole(), "Existing user's role should remain unchanged");
     }
 
+    /**
+     * Tests the update of a non-existent user.
+     * Ensures that a UserNotFoundException is thrown and no update is attempted in
+     * the DAO.
+     */
     @Test
     void testUpdateUserInvalid() {
         // Define a non-existent user
@@ -182,6 +228,11 @@ public class UserServiceImplTest {
         verify(userDao, never()).updateUser(nonExistentUser);
     }
 
+    /**
+     * Tests the deletion of a user by their ID when the user exists.
+     * Verifies that the DAO methods for retrieving and deleting the user are called
+     * as expected.
+     */
     @Test
     void testDeleteUser() {
         // Define the ID and mock user
@@ -199,6 +250,10 @@ public class UserServiceImplTest {
         verify(userDao, times(1)).deleteUser(userId);
     }
 
+    /**
+     * Tests the retrieval of a user by their email address when the user exists.
+     * Ensures that the correct user data is returned and the DAO method is called.
+     */
     @Test
     void testGetUserByEmail() {
         // Define email and mock user
@@ -221,6 +276,12 @@ public class UserServiceImplTest {
         verify(userDao, times(1)).getUserByEmail(email);
     }
 
+    /**
+     * Tests the retrieval of a user by their email address when the user does not
+     * exist.
+     * Verifies that a UserNotFoundException is thrown and the correct DAO method is
+     * called.
+     */
     @Test
     void testGetUserByEmailNotFound() {
         // Define email for a user that doesn't exist
