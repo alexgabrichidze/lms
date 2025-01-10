@@ -17,7 +17,7 @@ public class LoanDaoImpl implements LoanDao {
     @Override
     public void addLoan(Loan loan) {
         String sql = "INSERT INTO loans (user_id, book_id, loan_date, return_date) VALUES (?, ?, ?, ?) RETURNING id";
-        
+
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
@@ -72,7 +72,7 @@ public class LoanDaoImpl implements LoanDao {
     public List<Loan> getAllLoans() {
         List<Loan> loans = new ArrayList<>();
         String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans";
-        
+
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql);
 

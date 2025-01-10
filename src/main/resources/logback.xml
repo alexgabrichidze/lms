@@ -54,26 +54,27 @@
     <logger
             name="com.library.dao"
             level="debug"
-            additivity="false">
+            additivity="true">
         <appender-ref ref="DAO"/>
     </logger>
 
     <logger
             name="com.library.service"
             level="debug"
-            additivity="false">
+            additivity="true">
         <appender-ref ref="SERVICE"/>
     </logger>
 
     <logger
             name="com.library.controller"
             level="debug"
-            additivity="false">
+            additivity="true">
         <appender-ref ref="CONTROLLER"/>
     </logger>
 
     <!-- Root Logger -->
     <root level="info">
+        <appender-ref ref="CONSOLE"/>
         <appender-ref ref="SERVICE"/>
         <appender-ref ref="DAO"/>
         <appender-ref ref="CONTROLLER"/>

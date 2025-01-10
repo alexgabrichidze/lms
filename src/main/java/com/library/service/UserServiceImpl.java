@@ -6,6 +6,8 @@ import com.library.model.User;
 import com.library.service.exceptions.UserNotFoundException;
 import com.library.service.exceptions.InvalidUserException;
 import static com.library.util.ValidationUtil.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -15,6 +17,10 @@ import java.util.List;
  */
 public class UserServiceImpl implements UserService {
 
+    // Logger instance
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class); // Logger instance
+
+    // UserDao instance
     private final UserDao userDao;
 
     /**
@@ -40,6 +46,11 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void createUser(User user) {
+
+        // Log the user creation attempt
+        logger.info("Attempting to create user: {}", user);
+
+        // Validate user object
         if (user == null) {
             throw new InvalidUserException("User cannot be null.");
         }
@@ -53,12 +64,16 @@ public class UserServiceImpl implements UserService {
         // Check if the email is already in use
         User existingUser = userDao.getUserByEmail(user.getEmail());
 
-        // If another user is found with the same email, throw an exception
+        // If another user is found with the same email, throw an exception and log the
+        // error
         if (existingUser != null) {
+
+            logger.error("User creation failed: Email {} is already in use", user.getEmail());
             throw new InvalidUserException("Email is already in use.");
         }
 
         userDao.addUser(user); // Add the user
+        logger.info("User created successfully with ID: {}", user.getId()); // Log the success
     }
 
     /**
@@ -70,6 +85,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(int id) {
 
+        // Log the user retrieval attempt
+        logger.info("Fetching user with ID: {}", id);
+
         // Validate user ID
         validatePositiveId(id, "User ID",
                 () -> new InvalidUserException("User ID must be a positive integer."));
@@ -77,11 +95,13 @@ public class UserServiceImpl implements UserService {
         // Fetch the user by ID
         User user = userDao.getUserById(id);
 
-        // If the user is not found, throw an exception
+        // If the user is not found, throw an exception and log the warning
         if (user == null) {
+            logger.warn("User with ID {} not found", id);
             throw new UserNotFoundException("User with ID " + id + " not found.");
         }
 
+        logger.info("User fetched successfully: {}", user); // Log the success
         return user; // Return the user if found
     }
 
@@ -92,7 +112,16 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public List<User> getAllUsers() {
-        return userDao.getAllUsers(); // Fetch all users
+
+        // Log the user retrieval attempt
+        logger.info("Fetching all users");
+
+        // Fetch all users
+        List<User> users = userDao.getAllUsers();
+
+        // Log the success and return the list
+        logger.info("Successfully fetched {} users", users.size());
+        return users;
     }
 
     /**
@@ -103,8 +132,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(User user) {
 
+        // Log the user update attempt
+        logger.info("Attempting to update user: {}", user);
+
         // Validate user object
         if (user == null) {
+            logger.error("User update failed: User object is null"); // Log the error
             throw new InvalidUserException("User cannot be null.");
         }
 
@@ -117,6 +150,7 @@ public class UserServiceImpl implements UserService {
 
         // If the user is not found, throw an exception
         if (existingUser == null) {
+            logger.warn("User update failed: User with ID {} not found", user.getId()); // Log the warning
             throw new UserNotFoundException("User with ID " + user.getId() + " not found.");
         }
 
@@ -137,14 +171,17 @@ public class UserServiceImpl implements UserService {
                 // Check if the email is already in use
                 User userWithSameEmail = userDao.getUserByEmail(user.getEmail());
 
-                // If another user is found with the same email, throw an exception
+                // If another user is found with the same email, throw an exception and log the
+                // error
                 if (userWithSameEmail != null) {
+                    logger.error("User update failed: Email {} is already in use by another user", user.getEmail());
                     throw new InvalidUserException("Email is already in use by another user.");
                 }
             }
         }
 
         userDao.updateUser(user); // Update the user
+        logger.info("User updated successfully: {}", user); // Log the success
     }
 
     /**
@@ -155,17 +192,23 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(int id) {
 
+        // Log the user deletion attempt
+        logger.info("Attempting to delete user with ID: {}", id);
+
         // Validate user ID
         validatePositiveId(id, "User ID",
                 () -> new InvalidUserException("User ID must be a positive integer."));
 
-        // Check if the user exists before deletion
+        // Verify user existence before deletion, log error and throw exception if not
+        // found
         User user = userDao.getUserById(id);
         if (user == null) {
+            logger.warn("User deletion failed: User with ID {} not found", id);
             throw new UserNotFoundException("User with ID " + id + " not found.");
         }
 
         userDao.deleteUser(id); // Delete the user
+        logger.info("User with ID {} deleted successfully", id); // Log the success
     }
 
     /**
@@ -177,15 +220,23 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByEmail(String email) {
 
+        // Log the user retrieval attempt
+        logger.info("Fetching user with email: {}", email);
+
         // Validate email format
         validateEmail(email,
                 () -> new InvalidUserException("Invalid email format."));
 
-        // Fetch the user by email
+        // Retrieve the user by email
         User user = userDao.getUserByEmail(email);
+
+        // If the user is not found, throw an exception and log the warning
         if (user == null) {
+            logger.warn("User with email {} not found", email);
             throw new UserNotFoundException("User with email " + email + " not found.");
         }
+
+        logger.info("User fetched successfully: {}", user); // Log the success
         return user; // Return the user if found
     }
 }
