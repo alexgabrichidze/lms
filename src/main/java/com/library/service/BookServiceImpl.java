@@ -8,15 +8,21 @@ import com.library.model.BookStatus;
 import com.library.service.exceptions.BookNotFoundException;
 import com.library.service.exceptions.InvalidBookException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static com.library.util.ValidationUtil.*;
 
 import java.util.List;
+
 
 /**
  * Implementation of the BookService interface.
  * Handles business logic for book-related operations.
  */
 public class BookServiceImpl implements BookService {
+
+    private static final Logger logger = LoggerFactory.getLogger(BookServiceImpl.class); // Logger for this class
 
     private final BookDao bookDao; // Data access object for books
 
@@ -44,6 +50,10 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public void addBook(Book book) {
+
+        logger.debug("Attempting to add book: {}", book); // Log the attempt to add a book
+
+        // Validate book object
         if (book == null) {
             throw new InvalidBookException("Book cannot be null.");
         }
@@ -62,6 +72,7 @@ public class BookServiceImpl implements BookService {
         }
 
         bookDao.addBook(book); // Add the book
+        logger.info("Book added successfully with ID: {}", book.getId()); // Log success
     }
 
     /**
@@ -75,16 +86,22 @@ public class BookServiceImpl implements BookService {
     @Override
     public Book getBookById(int id) {
 
+        logger.debug("Fetching book with ID: {}", id); // Log the fetch operation
+
         // Validate book ID (must be positive)
         validatePositiveId(id, "Book ID",
                 () -> new InvalidBookException("Book ID must be a positive integer."));
 
         // Retrieve book and check existence
         Book book = bookDao.getBookById(id);
+
+        // If book is not found, log a warning and throw an exception
         if (book == null) {
+            logger.warn("Book with ID {} not found.", id); // Log a warning for not found
             throw new BookNotFoundException("Book with ID " + id + " not found.");
         }
 
+        logger.info("Book fetched successfully: {}", book); // Log success
         return book; // Return the book if found
     }
 
@@ -95,7 +112,16 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public List<Book> getAllBooks() {
-        return bookDao.getAllBooks();
+
+        // Log the fetch operation
+        logger.debug("Fetching all books.");
+
+        // Fetch all books
+        List<Book> books = bookDao.getAllBooks();
+
+        // Log the count of books fetched and return the list
+        logger.info("Successfully fetched {} books.", books.size());
+        return books;
     }
 
     /**
@@ -108,6 +134,8 @@ public class BookServiceImpl implements BookService {
     @Override
     public void updateBook(Book book) {
 
+        logger.debug("Updating book: {}", book); // Log the update attempt
+
         // Validate book ID (must be positive and not null)
         if (book == null || book.getId() <= 0) {
             throw new InvalidBookException("Invalid book ID.");
@@ -115,7 +143,10 @@ public class BookServiceImpl implements BookService {
 
         // Check if the book exists before proceeding
         Book existingBook = bookDao.getBookById(book.getId());
+
+        // If book is not found, log a warning and throw an exception
         if (existingBook == null) {
+            logger.warn("Book with ID {} not found for update.", book.getId());
             throw new BookNotFoundException("Book with ID " + book.getId() + " not found.");
         }
 
@@ -136,6 +167,7 @@ public class BookServiceImpl implements BookService {
         }
 
         bookDao.updateBook(book); // Update the book
+        logger.info("Book updated successfully: {}", book); // Log success
     }
 
     /**
@@ -148,17 +180,24 @@ public class BookServiceImpl implements BookService {
     @Override
     public void deleteBook(int id) {
 
+        // Log the delete attempt
+        logger.debug("Attempting to delete book with ID: {}", id);
+
         // Validate book ID (must be positive)
         validatePositiveId(id, "Book ID",
                 () -> new InvalidBookException("Book ID must be a positive integer."));
 
         // Check if the book exists before proceeding
         Book book = bookDao.getBookById(id);
+
+        // If book is not found, log a warning and throw an exception
         if (book == null) {
+            logger.warn("Book with ID {} not found for deletion.", id);
             throw new BookNotFoundException("Book with ID " + id + " not found.");
         }
 
         bookDao.deleteBook(id); // Delete the book
+        logger.info("Book with ID {} deleted successfully.", id); // Log success
     }
 
     /**
@@ -172,11 +211,18 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<Book> getBooksByTitle(String title) {
 
+        // Log the fetch attempt
+        logger.debug("Fetching books with title: {}", title);
+
         // Validate book title before fetching the list of books
         validateNotEmpty(title, "Book title",
                 () -> new InvalidBookException("Book title cannot be null or empty."));
 
-        return bookDao.getBooksByTitle(title); // Return the list of books
+        List<Book> books = bookDao.getBooksByTitle(title); // Fetch books by title
+
+        // Log the success and return the list
+        logger.info("Successfully fetched {} book(s) matching title: {}", books.size(), title);
+        return books;
     }
 
     /**
@@ -190,11 +236,18 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<Book> getBooksByAuthor(String author) {
 
+        // Log the fetch attempt
+        logger.debug("Fetching books with author: {}", author);
+
         // Validate book author before fetching the list of books
         validateNotEmpty(author, "Book author",
                 () -> new InvalidBookException("Book author cannot be null or empty."));
 
-        return bookDao.getBooksByAuthor(author); // Return the list of books
+        List<Book> books = bookDao.getBooksByAuthor(author); // Fetch books by author
+
+        // Log the success and return the list
+        logger.info("Successfully fetched {} book(s) by author: {}", books.size(), author);
+        return books;
     }
 
     /**
@@ -208,17 +261,25 @@ public class BookServiceImpl implements BookService {
     @Override
     public Book getBookByIsbn(String isbn) {
 
+        // Log the fetch attempt
+        logger.debug("Fetching book with ISBN: {}", isbn);
+
         // Validate book ISBN before fetching the book
         validateNotEmpty(isbn, "Book ISBN",
                 () -> new InvalidBookException("Book ISBN cannot be null or empty."));
 
         // Check if the book exists before proceeding
         Book book = bookDao.getBookByIsbn(isbn);
+
+        // If book is not found, log a warning and throw an exception
         if (book == null) {
+            logger.warn("Book with ISBN {} not found.", isbn);
             throw new BookNotFoundException("Book with ISBN " + isbn + " not found.");
         }
 
-        return book; // Return the book if found
+        // Log the success and return the book
+        logger.info("Book fetched successfully: {}", book);
+        return book;
     }
 
     /**
@@ -232,22 +293,31 @@ public class BookServiceImpl implements BookService {
     @Override
     public void updateBookStatus(int id, BookStatus status) {
 
+        // Log the update attempt
+        logger.debug("Attempting to update status for book ID: {} to {}", id, status);
+
         // Validate book ID (must be positive)
         validatePositiveId(id, "Book ID",
                 () -> new InvalidBookException("Book ID must be a positive integer."));
 
-        // Validate book status before updating
+        // Ensure the status is not null before updating
         if (status == null) {
+            logger.warn("Book status is null for book ID: {}", id);
             throw new InvalidBookException("Book status cannot be null.");
         }
 
         // Check if the book exists before proceeding
         Book book = bookDao.getBookById(id);
+
+        // If book is not found, log a warning and throw an exception
         if (book == null) {
+            logger.warn("Book with ID {} not found for status update.", id); // Log warning for not found
             throw new BookNotFoundException("Book with ID " + id + " not found.");
         }
 
         book.setStatus(status); // Update the book status
         bookDao.updateBook(book); // Update the book
+
+        logger.info("Book status updated successfully for ID: {} to {}", id, status); // Log success
     }
 }
