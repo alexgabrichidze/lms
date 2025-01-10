@@ -3,6 +3,8 @@ package com.library.dao;
 import com.library.model.User;
 import com.library.model.UserRole;
 import com.library.util.ConnectionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -14,6 +16,9 @@ import java.util.List;
  * database.
  */
 public class UserDaoImpl implements UserDao {
+
+    // Logger for debugging and error logging
+    private static final Logger logger = LoggerFactory.getLogger(UserDaoImpl.class);
 
     /**
      * Adds a new user to the database.
@@ -27,6 +32,9 @@ public class UserDaoImpl implements UserDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Log the user being added
+            logger.info("Attempting to add user: {}", user);
+
             // Set the values of the prepared statement
             statement.setString(1, user.getName());
             statement.setString(2, user.getEmail());
@@ -38,9 +46,13 @@ public class UserDaoImpl implements UserDao {
             // Set the generated ID in the User object
             if (resultSet.next()) {
                 user.setId(resultSet.getInt("id")); // Set the generated ID in the User object
+                logger.info("User added successfully with ID: {}", user.getId()); // Log the user added
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+
+            // Log and throw a runtime exception if an error occurs
+            logger.error("Error while adding user: {}", user, e);
+            throw new RuntimeException("Failed to add user", e);
         }
     }
 
@@ -57,6 +69,9 @@ public class UserDaoImpl implements UserDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Log the user being fetched
+            logger.info("Fetching user with ID: {}", id);
+
             // Set the value of the prepared statement
             statement.setInt(1, id);
 
@@ -65,12 +80,29 @@ public class UserDaoImpl implements UserDao {
 
             // Create and return a User object if a record is found
             if (resultSet.next()) {
-                return mapResultSetToUser(resultSet); // Map the result set to a User object
+
+                // Map the result set to a User object
+                User user = mapResultSetToUser(resultSet);
+
+                // Log the user fetched
+                logger.info("User fetched successfully: {}", user);
+
+                // Return the User object
+                return user;
+            } else {
+
+                // Log a warning if no record is found
+                logger.warn("No user found with ID: {}", id);
+
+                // Return null if no record is found
+                return null;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+
+            // Log and throw a runtime exception if an error occurs
+            logger.error("Error while fetching user with ID: {}", id, e);
+            throw new RuntimeException("Failed to fetch user", e);
         }
-        return null; // Return null if no record is found
     }
 
     /**
@@ -87,14 +119,26 @@ public class UserDaoImpl implements UserDao {
                 PreparedStatement statement = connection.prepareStatement(sql);
                 ResultSet resultSet = statement.executeQuery()) {
 
+            // Log the users being fetched
+            logger.info("Fetching all users.");
+
             // Create a User object for each record and add it to the list
             while (resultSet.next()) {
                 users.add(mapResultSetToUser(resultSet)); // Map the result set to a User object
             }
+
+            // Log the users fetched
+            logger.info("Successfully fetched {} users.", users.size());
+
+            // Return the list of User objects
+            return users;
+
         } catch (SQLException e) {
-            e.printStackTrace();
+
+            // Log and throw a runtime exception if an error occurs
+            logger.error("Error while fetching all users", e);
+            throw new RuntimeException("Failed to fetch all users", e);
         }
-        return users; // Return the list of users
     }
 
     /**
@@ -109,6 +153,9 @@ public class UserDaoImpl implements UserDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Log the user being updated
+            logger.info("Updating user: {}", user);
+
             // Set the values of the prepared statement
             statement.setString(1, user.getName());
             statement.setString(2, user.getEmail());
@@ -116,9 +163,15 @@ public class UserDaoImpl implements UserDao {
             statement.setInt(4, user.getId());
 
             // Execute the statement
-            statement.executeUpdate();
+            int rowsUpdated = statement.executeUpdate();
+
+            // Log the number of rows updated
+            logger.info("Updated {} row(s) for user ID: {}", rowsUpdated, user.getId());
         } catch (SQLException e) {
-            e.printStackTrace();
+
+            // Log and throw a runtime exception if an error occurs
+            logger.error("Error while updating user: {}", user, e);
+            throw new RuntimeException("Failed to update user", e);
         }
     }
 
@@ -133,13 +186,22 @@ public class UserDaoImpl implements UserDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Log the user being deleted
+            logger.info("Attempting to delete user with ID: {}", id);
+
             // Set the value of the prepared statement
             statement.setInt(1, id);
 
             // Execute the statement
-            statement.executeUpdate();
+            int rowsDeleted = statement.executeUpdate();
+
+            // Log the number of rows deleted
+            logger.info("Deleted {} row(s) for user ID: {}", rowsDeleted, id);
         } catch (SQLException e) {
-            e.printStackTrace();
+
+            // Log and throw a runtime exception if an error occurs
+            logger.error("Error while deleting user with ID: {}", id, e);
+            throw new RuntimeException("Failed to delete user", e);
         }
     }
 
@@ -156,6 +218,9 @@ public class UserDaoImpl implements UserDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Log the user being fetched
+            logger.info("Fetching user with email: {}", email);
+
             // Set the value of the prepared statement
             statement.setString(1, email);
 
@@ -164,12 +229,27 @@ public class UserDaoImpl implements UserDao {
 
             // Create and return a User object if a record is found
             if (resultSet.next()) {
-                return mapResultSetToUser(resultSet); // Map the result set to a User object
+
+                // Map the result set to a User object
+                User user = mapResultSetToUser(resultSet);
+
+                // Log the user fetched
+                logger.info("User fetched successfully: {}", user);
+
+                return user; // Return the User object
+            } else {
+
+                // Log a warning if no record is found
+                logger.warn("No user found with email: {}", email);
+
+                return null; // Return null if no record is found
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+
+            // Log and throw a runtime exception if an error occurs
+            logger.error("Error while fetching user with email: {}", email, e);
+            throw new RuntimeException("Failed to fetch user by email", e);
         }
-        return null; // Return null if no record is found
     }
 
     /**
@@ -188,6 +268,9 @@ public class UserDaoImpl implements UserDao {
                 resultSet.getString("email"),
                 UserRole.valueOf(resultSet.getString("role").toUpperCase()) // Convert string to enum
         );
+
+        // Log the User object mapped
+        logger.debug("Mapped ResultSet to User: {}", user);
         return user; // Return the User object
     }
 }

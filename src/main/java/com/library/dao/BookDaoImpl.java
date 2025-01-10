@@ -3,6 +3,8 @@ package com.library.dao;
 import com.library.model.Book;
 import com.library.model.BookStatus;
 import com.library.util.ConnectionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -14,6 +16,9 @@ import java.util.List;
  * database.
  */
 public class BookDaoImpl implements BookDao {
+
+    // Logger for debugging and error logging
+    private static final Logger logger = LoggerFactory.getLogger(BookDaoImpl.class);
 
     /**
      * Adds a new book to the database.
