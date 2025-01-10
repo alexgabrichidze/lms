@@ -2,6 +2,10 @@
 target/
 dependency-reduced-pom.xml
 
+# Log files 
+*.log
+/logs 
+
 # Sensitive files
 .env
 
