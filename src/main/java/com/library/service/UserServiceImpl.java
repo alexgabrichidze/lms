@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
             throw new InvalidUserException("User cannot be null.");
         }
 
-        // Validate user fields 
+        // Validate fields 
         validateNotEmpty(user.getName(), "User name",
                 () -> new InvalidUserException("User name cannot be null or empty."));
         validateEmail(user.getEmail(),
