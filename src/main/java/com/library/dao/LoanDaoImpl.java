@@ -27,17 +27,23 @@ public class LoanDaoImpl implements LoanDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Set the parameters of the insert statement
             statement.setInt(1, loan.getUserId());
             statement.setInt(2, loan.getBookId());
             statement.setDate(3, Date.valueOf(loan.getLoanDate()));
             statement.setDate(4, loan.getReturnDate() != null ? Date.valueOf(loan.getReturnDate()) : null);
 
+            // Execute the insert statement and get the generated ID
             ResultSet resultSet = statement.executeQuery();
+
+            // Check if a loan is added and log the generated ID
             if (resultSet.next()) {
                 loan.setId(resultSet.getInt("id"));
                 logger.info("Loan added successfully with ID: {}", loan.getId()); // Log success with generated ID
             }
         } catch (SQLException e) {
+
+            // Log the error and throw a new runtime exception
             logger.error("Error while adding loan: {}", loan, e); // Log the error with details
             throw new RuntimeException("Failed to add loan", e);
         }
@@ -51,9 +57,11 @@ public class LoanDaoImpl implements LoanDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Set the ID parameter and execute the query
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
 
+            // Check if a loan is found and return it, otherwise return null
             if (resultSet.next()) {
                 Loan loan = mapResultSetToLoan(resultSet);
                 logger.info("Loan fetched successfully: {}", loan); // Log the fetched loan
@@ -63,6 +71,8 @@ public class LoanDaoImpl implements LoanDao {
                 return null;
             }
         } catch (SQLException e) {
+
+            // Log the error and throw a new runtime exception
             logger.error("Error while fetching loan with ID: {}", id, e); // Log the error
             throw new RuntimeException("Failed to fetch loan", e);
         }
@@ -80,13 +90,18 @@ public class LoanDaoImpl implements LoanDao {
                 ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
+
+                // Map each row to a Loan object and add it to the list
                 Loan loan = mapResultSetToLoan(resultSet);
                 loans.add(loan);
             }
 
+            // Log the number of loans fetched and return the list of loans
             logger.info("Successfully fetched {} loans", loans.size()); // Log the number of loans fetched
             return loans;
         } catch (SQLException e) {
+
+            // Log the error and throw a new runtime exception
             logger.error("Error while fetching all loans", e); // Log the error
             throw new RuntimeException("Failed to fetch all loans", e);
         }
@@ -101,15 +116,19 @@ public class LoanDaoImpl implements LoanDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
+            // Set the parameters of the update statement
             statement.setInt(1, loan.getUserId());
             statement.setInt(2, loan.getBookId());
             statement.setDate(3, Date.valueOf(loan.getLoanDate()));
             statement.setDate(4, loan.getReturnDate() != null ? Date.valueOf(loan.getReturnDate()) : null);
             statement.setInt(5, loan.getId());
 
+            // Execute the update statement and log the number of rows updated
             int rowsUpdated = statement.executeUpdate();
             logger.info("Updated {} row(s) for loan ID: {}", rowsUpdated, loan.getId()); // Log the update result
         } catch (SQLException e) {
+
+            // Log the error and throw a new runtime exception
             logger.error("Error while updating loan: {}", loan, e); // Log the error
             throw new RuntimeException("Failed to update loan", e);
         }
@@ -125,10 +144,14 @@ public class LoanDaoImpl implements LoanDao {
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, id);
+
+            // Execute the delete statement and log the number of rows deleted
             int rowsDeleted = statement.executeUpdate();
-            logger.info("Deleted {} row(s) for loan ID: {}", rowsDeleted, id); // Log the deletion result
+            logger.info("Deleted {} row(s) for loan ID: {}", rowsDeleted, id);
         } catch (SQLException e) {
-            logger.error("Error while deleting loan with ID: {}", id, e); // Log the error
+
+            // Log the error and throw a new runtime exception
+            logger.error("Error while deleting loan with ID: {}", id, e);
             throw new RuntimeException("Failed to delete loan", e);
         }
     }
@@ -146,13 +169,17 @@ public class LoanDaoImpl implements LoanDao {
             statement.setInt(1, userId);
             ResultSet resultSet = statement.executeQuery();
 
+            // Iterate over the result set and add each loan to the list
             while (resultSet.next()) {
                 loans.add(mapResultSetToLoan(resultSet));
             }
 
+            // Log the number of loans fetched and return the list of loans
             logger.info("Fetched {} loans for user ID: {}", loans.size(), userId); // Log the number of loans fetched
             return loans;
         } catch (SQLException e) {
+
+            // Log the error and throw a new runtime exception
             logger.error("Error while fetching loans for user ID: {}", userId, e); // Log the error
             throw new RuntimeException("Failed to fetch loans", e);
         }
@@ -169,12 +196,16 @@ public class LoanDaoImpl implements LoanDao {
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, bookId);
+
+            // Execute the query and get the result set
             ResultSet resultSet = statement.executeQuery();
 
+            // Iterate over the result set and add each loan to the list
             while (resultSet.next()) {
                 loans.add(mapResultSetToLoan(resultSet));
             }
 
+            // Log the number of loans fetched and return the list of loans
             logger.info("Fetched {} loans for book ID: {}", loans.size(), bookId); // Log the number of loans fetched
             return loans;
         } catch (SQLException e) {
@@ -194,14 +225,18 @@ public class LoanDaoImpl implements LoanDao {
                 PreparedStatement statement = connection.prepareStatement(sql);
                 ResultSet resultSet = statement.executeQuery()) {
 
+            // Iterate over the result set and add each loan to the list
             while (resultSet.next()) {
                 loans.add(mapResultSetToLoan(resultSet));
             }
 
-            logger.info("Fetched {} active loans", loans.size()); // Log the number of active loans
+            // Log the number of active loans fetched and return the list of loans
+            logger.info("Fetched {} active loans", loans.size());
             return loans;
         } catch (SQLException e) {
-            logger.error("Error while fetching active loans", e); // Log the error
+
+            // Log the error and throw a new runtime exception
+            logger.error("Error while fetching active loans", e);
             throw new RuntimeException("Failed to fetch active loans", e);
         }
     }
