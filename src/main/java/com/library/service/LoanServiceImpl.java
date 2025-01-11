@@ -46,12 +46,9 @@ public class LoanServiceImpl implements LoanService {
      * Creates a new loan.
      *
      * @param loan the loan to be created
-     * @throws InvalidLoanException  if the loan data is invalid
-     * @throws LoanConflictException if the loan conflicts with existing data (e.g.,
-     *                               book already loaned)
      */
     @Override
-    public void createLoan(Loan loan) throws InvalidLoanException, LoanConflictException {
+    public void createLoan(Loan loan) {
 
         // Log the loan creation attempt
         logger.info("Attempting to create loan: {}", loan);
@@ -85,10 +82,9 @@ public class LoanServiceImpl implements LoanService {
      *
      * @param id the unique ID of the loan
      * @return the loan object if found
-     * @throws LoanNotFoundException if no loan with the given ID exists
      */
     @Override
-    public Loan getLoanById(int id) throws LoanNotFoundException {
+    public Loan getLoanById(int id) {
 
         // Log the loan retrieval attempt
         logger.info("Fetching loan with ID: {}", id);
@@ -131,11 +127,9 @@ public class LoanServiceImpl implements LoanService {
      * Updates an existing loan.
      *
      * @param loan the loan with updated details
-     * @throws InvalidLoanException  if the loan data is invalid
-     * @throws LoanNotFoundException if no loan with the given ID exists
      */
     @Override
-    public void updateLoan(Loan loan) throws InvalidLoanException, LoanNotFoundException {
+    public void updateLoan(Loan loan) {
 
         // Log the loan update attempt
         logger.info("Attempting to update loan: {}", loan);
@@ -170,10 +164,9 @@ public class LoanServiceImpl implements LoanService {
      * Deletes a loan by its unique ID.
      *
      * @param id the unique ID of the loan
-     * @throws LoanNotFoundException if no loan with the given ID exists
      */
     @Override
-    public void deleteLoan(int id) throws LoanNotFoundException {
+    public void deleteLoan(int id) {
 
         // Log the loan deletion attempt
         logger.info("Attempting to delete loan with ID: {}", id);
