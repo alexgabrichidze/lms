@@ -1,9 +1,7 @@
 package com.library.service;
 
 import com.library.model.Loan;
-import com.library.service.exceptions.InvalidLoanException;
-import com.library.service.exceptions.LoanConflictException;
-import com.library.service.exceptions.LoanNotFoundException;
+
 
 import java.util.List;
 
@@ -16,20 +14,16 @@ public interface LoanService {
      * Creates a new loan.
      *
      * @param loan the loan to be created
-     * @throws InvalidLoanException  if the loan data is invalid
-     * @throws LoanConflictException if the loan conflicts with existing data (e.g.,
-     *                               book already loaned)
      */
-    void createLoan(Loan loan) throws InvalidLoanException, LoanConflictException;
+    void createLoan(Loan loan);
 
     /**
      * Retrieves a loan by its unique ID.
      *
      * @param id the unique ID of the loan
      * @return the loan object if found
-     * @throws LoanNotFoundException if no loan with the given ID exists
      */
-    Loan getLoanById(int id) throws LoanNotFoundException;
+    Loan getLoanById(int id);
 
     /**
      * Retrieves all loans in the system.
@@ -42,18 +36,15 @@ public interface LoanService {
      * Updates an existing loan.
      *
      * @param loan the loan with updated details
-     * @throws InvalidLoanException  if the loan data is invalid
-     * @throws LoanNotFoundException if no loan with the given ID exists
      */
-    void updateLoan(Loan loan) throws InvalidLoanException, LoanNotFoundException;
+    void updateLoan(Loan loan);
 
     /**
      * Deletes a loan by its unique ID.
      *
      * @param id the unique ID of the loan
-     * @throws LoanNotFoundException if no loan with the given ID exists
      */
-    void deleteLoan(int id) throws LoanNotFoundException;
+    void deleteLoan(int id);
 
     /**
      * Retrieves loans for a specific user by their user ID.

@@ -2,8 +2,6 @@ package com.library.service;
 
 import com.library.model.Book;
 import com.library.model.BookStatus;
-import com.library.service.exceptions.BookNotFoundException;
-import com.library.service.exceptions.InvalidBookException;
 
 import java.util.List;
 
@@ -17,7 +15,6 @@ public interface BookService {
      * Adds a new book to the library after validation.
      *
      * @param book the Book object to add
-     * @throws InvalidBookException if the book data is invalid
      */
     void addBook(Book book);
 
@@ -26,7 +23,6 @@ public interface BookService {
      *
      * @param id the ID of the book to retrieve
      * @return the Book object if found
-     * @throws BookNotFoundException if no book with the given ID exists
      */
     Book getBookById(int id);
 
@@ -41,8 +37,6 @@ public interface BookService {
      * Updates the details of an existing book after validation.
      *
      * @param book the Book object with updated details
-     * @throws InvalidBookException  if the updated book data is invalid
-     * @throws BookNotFoundException if no book with the given ID exists
      */
     void updateBook(Book book);
 
@@ -50,7 +44,6 @@ public interface BookService {
      * Deletes a book by its unique ID.
      *
      * @param id the ID of the book to delete
-     * @throws BookNotFoundException if no book with the given ID exists
      */
     void deleteBook(int id);
 
@@ -77,7 +70,6 @@ public interface BookService {
      *
      * @param isbn the ISBN to search for
      * @return the Book object if found
-     * @throws BookNotFoundException if no book with the given ISBN exists
      */
     Book getBookByIsbn(String isbn);
 
@@ -86,8 +78,6 @@ public interface BookService {
      *
      * @param id     the ID of the book to update
      * @param status the new status of the book
-     * @throws InvalidBookException  if the ID or status is invalid
-     * @throws BookNotFoundException if no book with the given ID exists
      */
     void updateBookStatus(int id, BookStatus status);
 
