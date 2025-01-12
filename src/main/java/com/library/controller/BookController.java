@@ -3,7 +3,6 @@ package com.library.controller;
 import com.library.model.Book;
 import com.library.model.BookStatus;
 import com.library.service.BookService;
-import com.library.service.LoanServiceImpl;
 import com.library.service.exceptions.BookNotFoundException;
 import com.library.service.exceptions.InvalidBookException;
 import com.sun.net.httpserver.HttpExchange;
@@ -140,7 +139,7 @@ public class BookController extends BaseController {
             String status = objectMapper.readValue(requestBody, String.class); // Parse status from request body
 
             try {
-                ookStatus bookStatus = BookStatus.valueOf(status);
+                BookStatus bookStatus = BookStatus.valueOf(status);
                 bookService.updateBookStatus(id, bookStatus);
                 sendResponse(exchange, 200, "Book status updated successfully");
                 logger.info("Successfully updated status for book with ID: {}", id);
