@@ -113,7 +113,7 @@ public class User {
      * @param role the user's role
      */
     public void setRole(UserRole role) {
-        this.role = role == null ? UserRole.USER : role; // Default role is USER
+        this.role = role;
     }
 
     /**
