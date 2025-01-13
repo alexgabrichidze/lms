@@ -218,6 +218,10 @@ public class BookController extends BaseController {
 
             // Parse the request body to get the new status
             String requestBody = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+
+            logger.debug("Request body received: {}", requestBody); // Log the request
+            // body
+
             String status = objectMapper.readValue(requestBody, String.class); // Parse status from request body
 
             // Validate the status before updating

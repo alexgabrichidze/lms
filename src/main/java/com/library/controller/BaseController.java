@@ -29,16 +29,22 @@ public abstract class BaseController implements HttpHandler {
      */
 
     protected void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
+        // If it's 204 (No Content), don't send a response body at all
+        if (statusCode == 204) {
+            // Indicate no body by passing -1
+            exchange.sendResponseHeaders(statusCode, -1);
+            // It’s good practice to close the exchange here
+            exchange.close();
+            return;
+        }
 
-        // Set response content type to JSON
+        // Otherwise, handle a normal body response
+        String responseWithNewline = response + "\n";
         exchange.getResponseHeaders().set("Content-Type", "application/json");
+        exchange.sendResponseHeaders(statusCode, responseWithNewline.getBytes(StandardCharsets.UTF_8).length);
 
-        // Set the status code and write the response body
-        exchange.sendResponseHeaders(statusCode, response.getBytes(StandardCharsets.UTF_8).length);
-
-        // Write the response body to the output stream
         try (OutputStream os = exchange.getResponseBody()) {
-            os.write(response.getBytes(StandardCharsets.UTF_8));
+            os.write(responseWithNewline.getBytes(StandardCharsets.UTF_8));
         }
     }
 
@@ -51,7 +57,13 @@ public abstract class BaseController implements HttpHandler {
      */
     protected int extractIdFromPath(String path) {
         String[] parts = path.split("/");
-        return Integer.parseInt(parts[parts.length - 1]); // Extract the last part of the path as the ID
+
+        // If the path ends with "status", then the ID is in parts[parts.length - 2].
+        if (parts[parts.length - 1].equals("status")) {
+            return Integer.parseInt(parts[parts.length - 2]);
+        } else {
+            return Integer.parseInt(parts[parts.length - 1]);
+        }
     }
 
     /**
