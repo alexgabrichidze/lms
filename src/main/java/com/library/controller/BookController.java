@@ -74,13 +74,13 @@ public class BookController extends BaseController {
                 logger.warn("Path not found: {}", path);
             }
         } catch (BookNotFoundException e) {
-            logger.error("Book not found: {}", e.getMessage());
+            logger.error("Book not found: {}", e.getMessage(), e);
             sendResponse(exchange, 404, e.getMessage()); // Handle book not found errors
         } catch (InvalidBookException e) {
-            logger.error("Invalid book data: {}", e.getMessage());
+            logger.error("Invalid book data: {}", e.getMessage(), e);
             sendResponse(exchange, 400, e.getMessage()); // Handle invalid book data errors
         } catch (IllegalArgumentException e) {
-            logger.error("Invalid input: {}", e.getMessage());
+            logger.error("Invalid input: {}", e.getMessage(), e);
             sendResponse(exchange, 400, "Invalid input: " + e.getMessage()); // Handle invalid input errors
         } catch (Exception e) {
             logger.error("Internal server error: {}", e.getMessage(), e);

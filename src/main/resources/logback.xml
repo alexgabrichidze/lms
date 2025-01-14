@@ -5,6 +5,7 @@
             name="CONSOLE"
             class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
+            <!-- Exclude stack traces from the console output -->
             <pattern>%date %level [%thread] %logger{10} - %msg%n</pattern>
         </encoder>
     </appender>
@@ -19,7 +20,8 @@
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>%date %level [%thread] %logger{10} - %msg%n</pattern>
+            <!-- Include stack traces in the file output -->
+            <pattern>%date %level [%thread] %logger{10} - %msg%n%ex{full}</pattern>
         </encoder>
     </appender>
 
@@ -33,7 +35,8 @@
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>%date %level [%thread] %logger{10} - %msg%n</pattern>
+            <!-- Include stack traces in the file output -->
+            <pattern>%date %level [%thread] %logger{10} - %msg%n%ex{full}</pattern>
         </encoder>
     </appender>
 
@@ -47,7 +50,8 @@
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>%date %level [%thread] %logger{10} - %msg%n</pattern>
+            <!-- Include stack traces in the file output -->
+            <pattern>%date %level [%thread] %logger{10} - %msg%n%ex{full}</pattern>
         </encoder>
     </appender>
 

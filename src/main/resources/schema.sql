@@ -7,7 +7,7 @@ CREATE TABLE books (
     author VARCHAR(255) NOT NULL,
     isbn VARCHAR(13) UNIQUE NOT NULL,
     published_date DATE,
-    status VARCHAR(50) DEFAULT 'AVAILABLE'
+    status VARCHAR(50) NOT NULL DEFAULT 'AVAILABLE'
 );
 
 -- Creating the 'users' table
@@ -15,7 +15,7 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    role VARCHAR(50) DEFAULT 'USER'
+    role VARCHAR(50) NOT NULL DEFAULT 'USER'
 );
 
 -- Creating the 'loans' table

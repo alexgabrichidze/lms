@@ -53,7 +53,7 @@ public class BookDaoImpl implements BookDao {
         } catch (SQLException e) {
 
             // Log the error message and throw a runtime exception
-            logger.error("Error while adding book: {}", book, e);
+            logger.error("Error while adding book: {}", book);
             throw new RuntimeException("Failed to add book", e);
         }
     }
@@ -96,7 +96,7 @@ public class BookDaoImpl implements BookDao {
         } catch (SQLException e) {
 
             // Log the error message and throw a runtime exception
-            logger.error("Error while fetching book with ID: {}", id, e);
+            logger.error("Error while fetching book with ID: {}", id);
             throw new RuntimeException("Failed to fetch book", e);
         }
     }
@@ -130,7 +130,7 @@ public class BookDaoImpl implements BookDao {
         } catch (SQLException e) {
 
             // Log the error message and throw a runtime exception
-            logger.error("Error while fetching all books", e);
+            logger.error("Error while fetching all books");
             throw new RuntimeException("Failed to fetch books", e);
         }
         return books; // Return the list of books
@@ -167,7 +167,7 @@ public class BookDaoImpl implements BookDao {
         } catch (SQLException e) {
 
             // Log the error message and throw a runtime exception
-            logger.error("Error while updating book: {}", book, e);
+            logger.error("Error while updating book: {}", book);
             throw new RuntimeException("Failed to update book", e);
         }
     }
@@ -196,7 +196,7 @@ public class BookDaoImpl implements BookDao {
         } catch (SQLException e) {
 
             // Log the error message and throw a runtime exception
-            logger.error("Error while deleting book with ID: {}", id, e);
+            logger.error("Error while deleting book with ID: {}", id);
             throw new RuntimeException("Failed to delete book", e);
         }
     }
@@ -234,7 +234,7 @@ public class BookDaoImpl implements BookDao {
         } catch (SQLException e) {
 
             // Log the error message and throw a runtime exception
-            logger.error("Error while fetching books with title: {}", title, e);
+            logger.error("Error while fetching books with title: {}", title);
             throw new RuntimeException("Failed to fetch books by title", e);
         }
         return books; // Return the list of books
@@ -275,7 +275,7 @@ public class BookDaoImpl implements BookDao {
         } catch (SQLException e) {
 
             // Log the error message and throw a runtime exception
-            logger.error("Error while fetching books by author: {}", author, e);
+            logger.error("Error while fetching books by author: {}", author);
             throw new RuntimeException("Failed to fetch books by author", e);
         }
         return books; // Return the list of books
@@ -320,7 +320,7 @@ public class BookDaoImpl implements BookDao {
         } catch (SQLException e) {
 
             // Log the error message and throw a runtime exception
-            logger.error("Error while fetching book with ISBN: {}", isbn, e);
+            logger.error("Error while fetching book with ISBN: {}", isbn);
             throw new RuntimeException("Failed to fetch book by ISBN", e);
         }
     }
@@ -336,6 +336,7 @@ public class BookDaoImpl implements BookDao {
 
         // Create a new Book object and set its attributes
         Book book = new Book(
+                resultSet.getInt("id"),
                 resultSet.getString("title"),
                 resultSet.getString("author"),
                 resultSet.getString("isbn"),
@@ -344,7 +345,6 @@ public class BookDaoImpl implements BookDao {
                         : null,
                 BookStatus.valueOf(resultSet.getString("status").toUpperCase()) // Convert string to enum and set status
         );
-        book.setId(resultSet.getInt("id")); // Explicitly set the book's ID
 
         // Log the User object mapped
         logger.debug("Mapped ResultSet to Book: {}", book);
