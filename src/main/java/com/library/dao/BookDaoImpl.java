@@ -39,7 +39,7 @@ public class BookDaoImpl implements BookDao {
             statement.setString(1, book.getTitle());
             statement.setString(2, book.getAuthor());
             statement.setString(3, book.getIsbn());
-            statement.setDate(4, book.getPublishedDate() != null ? Date.valueOf(book.getPublishedDate()) : null);
+            statement.setDate(4, Date.valueOf(book.getPublishedDate()));
             statement.setString(5, book.getStatus().name()); // Convert enum to string
 
             // Execute the statement, retrieve and set the generated ID
@@ -155,7 +155,7 @@ public class BookDaoImpl implements BookDao {
             statement.setString(1, book.getTitle());
             statement.setString(2, book.getAuthor());
             statement.setString(3, book.getIsbn());
-            statement.setDate(4, book.getPublishedDate() != null ? Date.valueOf(book.getPublishedDate()) : null);
+            statement.setDate(4, Date.valueOf(book.getPublishedDate()));
             statement.setString(5, book.getStatus().name()); // Convert enum to string
             statement.setInt(6, book.getId());
 
@@ -340,9 +340,7 @@ public class BookDaoImpl implements BookDao {
                 resultSet.getString("title"),
                 resultSet.getString("author"),
                 resultSet.getString("isbn"),
-                resultSet.getDate("published_date") != null
-                        ? resultSet.getDate("published_date").toLocalDate()
-                        : null,
+                resultSet.getDate("published_date").toLocalDate(),
                 BookStatus.valueOf(resultSet.getString("status").toUpperCase()) // Convert string to enum and set status
         );
 

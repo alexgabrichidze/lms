@@ -21,7 +21,8 @@ import java.util.List;
  */
 public class BookServiceImpl implements BookService {
 
-    private static final Logger logger = LoggerFactory.getLogger(BookServiceImpl.class); // Logger for this class
+    // Logger instance
+    private static final Logger logger = LoggerFactory.getLogger(BookServiceImpl.class); 
 
     private final BookDao bookDao; // Data access object for books
 
