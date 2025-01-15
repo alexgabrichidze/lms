@@ -41,7 +41,7 @@ public class User {
         this.id = id;
         this.name = name;
         this.email = email;
-        this.role = role == null ? UserRole.USER : role; // Default role is USER
+        this.role = role;
     }
 
     /**
