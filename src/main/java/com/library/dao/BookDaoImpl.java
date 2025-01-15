@@ -54,7 +54,7 @@ public class BookDaoImpl implements BookDao {
 
             // Log the error message and throw a runtime exception
             logger.error("Error while adding book: {}", book);
-            throw new RuntimeException("Failed to add book", e);
+            throw new RuntimeException("Failed to add book.", e);
         }
     }
 
@@ -97,7 +97,7 @@ public class BookDaoImpl implements BookDao {
 
             // Log the error message and throw a runtime exception
             logger.error("Error while fetching book with ID: {}", id);
-            throw new RuntimeException("Failed to fetch book", e);
+            throw new RuntimeException("Failed to fetch book.", e);
         }
     }
 
@@ -131,7 +131,7 @@ public class BookDaoImpl implements BookDao {
 
             // Log the error message and throw a runtime exception
             logger.error("Error while fetching all books");
-            throw new RuntimeException("Failed to fetch books", e);
+            throw new RuntimeException("Failed to fetch books.", e);
         }
         return books; // Return the list of books
     }
@@ -168,7 +168,7 @@ public class BookDaoImpl implements BookDao {
 
             // Log the error message and throw a runtime exception
             logger.error("Error while updating book: {}", book);
-            throw new RuntimeException("Failed to update book", e);
+            throw new RuntimeException("Failed to update book.", e);
         }
     }
 
@@ -197,7 +197,7 @@ public class BookDaoImpl implements BookDao {
 
             // Log the error message and throw a runtime exception
             logger.error("Error while deleting book with ID: {}", id);
-            throw new RuntimeException("Failed to delete book", e);
+            throw new RuntimeException("Failed to delete book.", e);
         }
     }
 
@@ -235,7 +235,7 @@ public class BookDaoImpl implements BookDao {
 
             // Log the error message and throw a runtime exception
             logger.error("Error while fetching books with title: {}", title);
-            throw new RuntimeException("Failed to fetch books by title", e);
+            throw new RuntimeException("Failed to fetch books by title.", e);
         }
         return books; // Return the list of books
     }
@@ -276,7 +276,7 @@ public class BookDaoImpl implements BookDao {
 
             // Log the error message and throw a runtime exception
             logger.error("Error while fetching books by author: {}", author);
-            throw new RuntimeException("Failed to fetch books by author", e);
+            throw new RuntimeException("Failed to fetch books by author.", e);
         }
         return books; // Return the list of books
     }
@@ -321,7 +321,7 @@ public class BookDaoImpl implements BookDao {
 
             // Log the error message and throw a runtime exception
             logger.error("Error while fetching book with ISBN: {}", isbn);
-            throw new RuntimeException("Failed to fetch book by ISBN", e);
+            throw new RuntimeException("Failed to fetch book by ISBN.", e);
         }
     }
 
@@ -341,11 +341,9 @@ public class BookDaoImpl implements BookDao {
                 resultSet.getString("author"),
                 resultSet.getString("isbn"),
                 resultSet.getDate("published_date").toLocalDate(),
-                BookStatus.valueOf(resultSet.getString("status").toUpperCase()) // Convert string to enum and set status
-        );
+                BookStatus.valueOf(resultSet.getString("status").toUpperCase()));
 
-        // Log the User object mapped
         logger.debug("Mapped ResultSet to Book: {}", book);
-        return book; // Return the Book object
+        return book;
     }
 }

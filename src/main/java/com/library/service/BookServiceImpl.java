@@ -11,8 +11,8 @@ import com.library.service.exceptions.InvalidBookException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.library.util.ValidationUtil.*;
-
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -22,9 +22,10 @@ import java.util.List;
 public class BookServiceImpl implements BookService {
 
     // Logger instance
-    private static final Logger logger = LoggerFactory.getLogger(BookServiceImpl.class); 
+    private static final Logger logger = LoggerFactory.getLogger(BookServiceImpl.class);
 
-    private final BookDao bookDao; // Data access object for books
+    // Data access object for books
+    private final BookDao bookDao;
 
     /**
      * Constructor to initialize the BookDao implementation.
@@ -49,29 +50,32 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public void addBook(Book book) {
+        logger.info("Attempting to add book: {}", book);
 
-        logger.debug("Attempting to add book: {}", book); // Log the attempt to add a book
-
-        // Validate book object
-        if (book == null) {
-            throw new InvalidBookException("Book cannot be null.");
+        // Validate that the ISBN is unique
+        Book existingBook = bookDao.getBookByIsbn(book.getIsbn());
+        if (existingBook != null) {
+            throw new InvalidBookException("A book with the same ISBN already exists.");
         }
 
-        // Validate book fields before adding
-        validateNotEmpty(book.getTitle(), "Book title",
-                () -> new InvalidBookException("Book title cannot be null or empty."));
-        validateNotEmpty(book.getAuthor(), "Book author",
-                () -> new InvalidBookException("Book author cannot be null or empty."));
-        validateNotEmpty(book.getIsbn(), "Book ISBN",
-                () -> new InvalidBookException("Book ISBN cannot be null or empty."));
-
-        // Use BookStatus enum for default status
-        if (book.getStatus() == null) {
-            book.setStatus(BookStatus.AVAILABLE);
+        // Validate that the status is valid (AVAILABLE or BORROWED)
+        if (!Arrays.asList(BookStatus.values()).contains(book.getStatus())) {
+            throw new InvalidBookException("Invalid book status.");
         }
 
-        bookDao.addBook(book); // Add the book
-        logger.info("Book added successfully with ID: {}", book.getId()); // Log success
+        // Validate that the ISBN is 13 characters long and contains only numbers
+        if (!book.getIsbn().matches("\\d{13}")) {
+            throw new InvalidBookException("Invalid ISBN format.");
+        }
+
+        // Validate that the published date is not in the future
+        if (book.getPublishedDate().isAfter(LocalDate.now())) {
+            throw new InvalidBookException("Invalid published date.");
+        }
+
+        // Add the book to the database
+        bookDao.addBook(book);
+        logger.info("Book added successfully with ID: {}", book.getId());
     }
 
     /**
@@ -83,11 +87,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public Book getBookById(int id) {
 
-        logger.debug("Fetching book with ID: {}", id); // Log the fetch operation
-
-        // Validate book ID (must be positive)
-        validatePositiveId(id, "Book ID",
-                () -> new InvalidBookException("Book ID must be a positive integer."));
+        logger.info("Fetching book with ID: {}", id); // Log the fetch operation
 
         // Retrieve book and check existence
         Book book = bookDao.getBookById(id);
@@ -111,7 +111,7 @@ public class BookServiceImpl implements BookService {
     public List<Book> getAllBooks() {
 
         // Log the fetch operation
-        logger.debug("Fetching all books.");
+        logger.info("Fetching all books.");
 
         // Fetch all books
         List<Book> books = bookDao.getAllBooks();
@@ -122,19 +122,13 @@ public class BookServiceImpl implements BookService {
     }
 
     /**
-     * Updates the details of an existing book after validation.
+     * Updates the details of an existing book.
      *
      * @param book the Book object with updated details
      */
     @Override
     public void updateBook(Book book) {
-
-        logger.debug("Updating book: {}", book); // Log the update attempt
-
-        // Validate book ID (must be positive and not null)
-        if (book == null || book.getId() <= 0) {
-            throw new InvalidBookException("Invalid book ID.");
-        }
+        logger.info("Updating book: {}", book); // Log the update attempt
 
         // Check if the book exists before proceeding
         Book existingBook = bookDao.getBookById(book.getId());
@@ -145,24 +139,48 @@ public class BookServiceImpl implements BookService {
             throw new BookNotFoundException("Book with ID " + book.getId() + " not found.");
         }
 
-        // Validate fields title, author, and ISBN, if updated
+        // Merge updated fields into the existing book
         if (book.getTitle() != null) {
-            validateNotEmpty(book.getTitle(), "Book title",
-                    () -> new InvalidBookException("Book title cannot be empty."));
+            existingBook.setTitle(book.getTitle());
         }
-
         if (book.getAuthor() != null) {
-            validateNotEmpty(book.getAuthor(), "Book author",
-                    () -> new InvalidBookException("Book author cannot be empty."));
+            existingBook.setAuthor(book.getAuthor());
         }
-
         if (book.getIsbn() != null) {
-            validateNotEmpty(book.getIsbn(), "Book ISBN",
-                    () -> new InvalidBookException("Book ISBN cannot be empty."));
+            // Validate that the ISBN is 13 characters long and contains only numbers
+            if (!book.getIsbn().matches("\\d{13}")) {
+                throw new InvalidBookException("Invalid ISBN format.");
+            }
+
+            // Validate that the ISBN is unique (if updated)
+            if (!book.getIsbn().equals(existingBook.getIsbn())) {
+                Book bookWithSameIsbn = bookDao.getBookByIsbn(book.getIsbn());
+                if (bookWithSameIsbn != null) {
+                    throw new InvalidBookException("A book with the same ISBN already exists.");
+                }
+            }
+
+            existingBook.setIsbn(book.getIsbn());
+        }
+        if (book.getPublishedDate() != null) {
+            // Validate that the published date is not in the future
+            if (book.getPublishedDate().isAfter(LocalDate.now())) {
+                throw new InvalidBookException("Invalid published date.");
+            }
+
+            existingBook.setPublishedDate(book.getPublishedDate());
+        }
+        if (book.getStatus() != null) {
+            // Validate that the status is valid (if updated)
+            if (!Arrays.asList(BookStatus.values()).contains(book.getStatus())) {
+                throw new InvalidBookException("Invalid book status.");
+            }
+
+            existingBook.setStatus(book.getStatus());
         }
 
-        bookDao.updateBook(book); // Update the book
-        logger.info("Book updated successfully: {}", book); // Log success
+        bookDao.updateBook(existingBook);
+        logger.info("Book updated successfully: {}", existingBook); // Log success
     }
 
     /**
@@ -175,11 +193,7 @@ public class BookServiceImpl implements BookService {
     public void deleteBook(int id) {
 
         // Log the delete attempt
-        logger.debug("Attempting to delete book with ID: {}", id);
-
-        // Validate book ID (must be positive)
-        validatePositiveId(id, "Book ID",
-                () -> new InvalidBookException("Book ID must be a positive integer."));
+        logger.info("Attempting to delete book with ID: {}", id);
 
         // Check if the book exists before proceeding
         Book book = bookDao.getBookById(id);
@@ -205,13 +219,15 @@ public class BookServiceImpl implements BookService {
     public List<Book> getBooksByTitle(String title) {
 
         // Log the fetch attempt
-        logger.debug("Fetching books with title: {}", title);
-
-        // Validate book title before fetching the list of books
-        validateNotEmpty(title, "Book title",
-                () -> new InvalidBookException("Book title cannot be null or empty."));
+        logger.info("Fetching books with title: {}", title);
 
         List<Book> books = bookDao.getBooksByTitle(title); // Fetch books by title
+
+        // If no books are found, log a warning and return an empty list
+        if (books.isEmpty()) {
+            logger.warn("No books found for title: {}", title);
+            throw new BookNotFoundException("No books found for title: " + title);
+        }
 
         // Log the success and return the list
         logger.info("Successfully fetched {} book(s) matching title: {}", books.size(), title);
@@ -229,13 +245,15 @@ public class BookServiceImpl implements BookService {
     public List<Book> getBooksByAuthor(String author) {
 
         // Log the fetch attempt
-        logger.debug("Fetching books with author: {}", author);
-
-        // Validate book author before fetching the list of books
-        validateNotEmpty(author, "Book author",
-                () -> new InvalidBookException("Book author cannot be null or empty."));
+        logger.info("Fetching books with author: {}", author);
 
         List<Book> books = bookDao.getBooksByAuthor(author); // Fetch books by author
+
+        // If no books are found, log a warning and return an empty list
+        if (books.isEmpty()) {
+            logger.warn("No books found for author: {}", author);
+            throw new BookNotFoundException("No books found for author: " + author);
+        }
 
         // Log the success and return the list
         logger.info("Successfully fetched {} book(s) by author: {}", books.size(), author);
@@ -252,11 +270,12 @@ public class BookServiceImpl implements BookService {
     public Book getBookByIsbn(String isbn) {
 
         // Log the fetch attempt
-        logger.debug("Fetching book with ISBN: {}", isbn);
+        logger.info("Fetching book with ISBN: {}", isbn);
 
-        // Validate book ISBN before fetching the book
-        validateNotEmpty(isbn, "Book ISBN",
-                () -> new InvalidBookException("Book ISBN cannot be null or empty."));
+        // Validate that the ISBN is 13 characters long and contains only numbers
+        if (!isbn.matches("\\d{13}")) {
+            throw new InvalidBookException("Invalid ISBN format.");
+        }
 
         // Check if the book exists before proceeding
         Book book = bookDao.getBookByIsbn(isbn);
@@ -282,16 +301,11 @@ public class BookServiceImpl implements BookService {
     public void updateBookStatus(int id, BookStatus status) {
 
         // Log the update attempt
-        logger.debug("Attempting to update status for book ID: {} to {}", id, status);
+        logger.info("Attempting to update status for book ID: {} to {}", id, status);
 
-        // Validate book ID (must be positive)
-        validatePositiveId(id, "Book ID",
-                () -> new InvalidBookException("Book ID must be a positive integer."));
-
-        // Ensure the status is not null before updating
-        if (status == null) {
-            logger.warn("Book status is null for book ID: {}", id);
-            throw new InvalidBookException("Book status cannot be null.");
+        // Check that the status is valid
+        if (!Arrays.asList(BookStatus.values()).contains(status)) {
+            throw new InvalidBookException("Invalid book status.");
         }
 
         // Check if the book exists before proceeding
