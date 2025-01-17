@@ -140,16 +140,6 @@ public class UserServiceImpl implements UserService {
         // Log the user update attempt
         logger.info("Attempting to update user: {}", user);
 
-        // Validate user object
-        if (user == null) {
-            logger.error("User update failed: User object is null"); // Log the error
-            throw new InvalidUserException("User cannot be null.");
-        }
-
-        // Validate user ID
-        validatePositiveId(user.getId(), "User ID",
-                () -> new InvalidUserException("Invalid user ID."));
-
         // Check if the user exists before updating
         User existingUser = userDao.getUserById(user.getId());
 
@@ -159,33 +149,25 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException("User with ID " + user.getId() + " not found.");
         }
 
-        // Validate name if updated
+        // Validate email format (basic validation)
+        if (!EMAIL_PATTERN.matcher(user.getEmail()).matches()) {
+            logger.error("User update failed: invalid email format.");
+            throw new InvalidUserException("Invalid email format.");
+        }
+
         if (user.getName() != null) {
-            validateNotEmpty(user.getName(), "User name",
-                    () -> new InvalidUserException("User name cannot be empty."));
+            existingUser.setName(user.getName());
         }
 
-        // Validate email if updated
         if (user.getEmail() != null) {
-            validateEmail(user.getEmail(),
-                    () -> new InvalidUserException("Invalid email format."));
-
-            // Check for email conflicts
-            if (!user.getEmail().equals(existingUser.getEmail())) {
-
-                // Check if the email is already in use
-                User userWithSameEmail = userDao.getUserByEmail(user.getEmail());
-
-                // If another user is found with the same email, throw an exception and log the
-                // error
-                if (userWithSameEmail != null) {
-                    logger.error("User update failed: Email {} is already in use by another user", user.getEmail());
-                    throw new InvalidUserException("Email is already in use by another user.");
-                }
-            }
+            existingUser.setEmail(user.getEmail());
         }
 
-        userDao.updateUser(user); // Update the user
+        if (user.getRole() != null) {
+            existingUser.setRole(user.getRole());
+        }
+
+        userDao.updateUser(existingUser); // Update the user
         logger.info("User updated successfully: {}", user); // Log the success
     }
 
