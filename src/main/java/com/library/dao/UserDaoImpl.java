@@ -51,7 +51,7 @@ public class UserDaoImpl implements UserDao {
         } catch (SQLException e) {
 
             // Log and throw a runtime exception if an error occurs
-            logger.error("Error while adding user: {}", user, e);
+            logger.error("Error while adding user: {}", user);
             throw new RuntimeException("Failed to add user", e);
         }
     }
@@ -100,7 +100,7 @@ public class UserDaoImpl implements UserDao {
         } catch (SQLException e) {
 
             // Log and throw a runtime exception if an error occurs
-            logger.error("Error while fetching user with ID: {}", id, e);
+            logger.error("Error while fetching user with ID: {}", id);
             throw new RuntimeException("Failed to fetch user", e);
         }
     }
@@ -136,7 +136,7 @@ public class UserDaoImpl implements UserDao {
         } catch (SQLException e) {
 
             // Log and throw a runtime exception if an error occurs
-            logger.error("Error while fetching all users", e);
+            logger.error("Error while fetching all users");
             throw new RuntimeException("Failed to fetch all users", e);
         }
     }
@@ -170,7 +170,7 @@ public class UserDaoImpl implements UserDao {
         } catch (SQLException e) {
 
             // Log and throw a runtime exception if an error occurs
-            logger.error("Error while updating user: {}", user, e);
+            logger.error("Error while updating user: {}", user);
             throw new RuntimeException("Failed to update user", e);
         }
     }
@@ -200,7 +200,7 @@ public class UserDaoImpl implements UserDao {
         } catch (SQLException e) {
 
             // Log and throw a runtime exception if an error occurs
-            logger.error("Error while deleting user with ID: {}", id, e);
+            logger.error("Error while deleting user with ID: {}", id);
             throw new RuntimeException("Failed to delete user", e);
         }
     }
@@ -247,7 +247,7 @@ public class UserDaoImpl implements UserDao {
         } catch (SQLException e) {
 
             // Log and throw a runtime exception if an error occurs
-            logger.error("Error while fetching user with email: {}", email, e);
+            logger.error("Error while fetching user with email: {}", email);
             throw new RuntimeException("Failed to fetch user by email", e);
         }
     }
@@ -266,7 +266,7 @@ public class UserDaoImpl implements UserDao {
                 resultSet.getInt("id"),
                 resultSet.getString("name"),
                 resultSet.getString("email"),
-                UserRole.valueOf(resultSet.getString("role").toUpperCase()) // Convert string to enum
+                UserRole.valueOf(resultSet.getString("role")) // Convert string to enum
         );
 
         // Log the User object mapped
