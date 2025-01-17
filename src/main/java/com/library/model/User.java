@@ -26,7 +26,7 @@ public class User {
     public User(String name, String email, UserRole role) {
         this.name = name;
         this.email = email;
-        this.role = role == null ? UserRole.USER : role; // Default role is USER
+        this.role = role; // Default role is USER
     }
 
     /**
