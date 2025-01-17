@@ -118,6 +118,12 @@ public class UserServiceImpl implements UserService {
         // Fetch all users
         List<User> users = userDao.getAllUsers();
 
+        // If no users are found, throw an exception and log the warning
+        if (users.isEmpty()) {
+            logger.warn("No users found");
+            throw new UserNotFoundException("No users found.");
+        }
+
         // Log the success and return the list
         logger.info("Successfully fetched {} users", users.size());
         return users;
