@@ -5,7 +5,8 @@ import com.library.dao.UserDaoImpl;
 import com.library.model.User;
 import com.library.service.exceptions.UserNotFoundException;
 import com.library.service.exceptions.InvalidUserException;
-import static com.library.util.ValidationUtil.*;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +23,8 @@ public class UserServiceImpl implements UserService {
 
     // UserDao instance
     private final UserDao userDao;
+
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
     /**
      * Constructor to initialize the UserDao implementation.
@@ -55,12 +58,6 @@ public class UserServiceImpl implements UserService {
             throw new InvalidUserException("User cannot be null.");
         }
 
-        // Validate fields 
-        validateNotEmpty(user.getName(), "User name",
-                () -> new InvalidUserException("User name cannot be null or empty."));
-        validateEmail(user.getEmail(),
-                () -> new InvalidUserException("Invalid email format."));
-
         // Check if the email is already in use
         User existingUser = userDao.getUserByEmail(user.getEmail());
 
@@ -70,6 +67,12 @@ public class UserServiceImpl implements UserService {
 
             logger.error("User creation failed: Email {} is already in use", user.getEmail());
             throw new InvalidUserException("Email is already in use.");
+        }   
+
+        // Validate email format (basic validation)
+        if (!EMAIL_PATTERN.matcher(user.getEmail()).matches()) {
+            logger.error("User creation failed: invalid email format.");
+            throw new InvalidUserException("Invalid email format.");
         }
 
         userDao.addUser(user); // Add the user
