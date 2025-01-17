@@ -185,10 +185,6 @@ public class UserServiceImpl implements UserService {
         // Log the user deletion attempt
         logger.info("Attempting to delete user with ID: {}", id);
 
-        // Validate user ID
-        validatePositiveId(id, "User ID",
-                () -> new InvalidUserException("User ID must be a positive integer."));
-
         // Verify user existence before deletion, log error and throw exception if not
         // found
         User user = userDao.getUserById(id);
@@ -213,9 +209,11 @@ public class UserServiceImpl implements UserService {
         // Log the user retrieval attempt
         logger.info("Fetching user with email: {}", email);
 
-        // Validate email format
-        validateEmail(email,
-                () -> new InvalidUserException("Invalid email format."));
+        // Validate email format (basic validation)
+        if (!EMAIL_PATTERN.matcher(email).matches()) {
+            logger.error("User retrieval failed: invalid email format.");
+            throw new InvalidUserException("Invalid email format.");
+        }
 
         // Retrieve the user by email
         User user = userDao.getUserByEmail(email);
