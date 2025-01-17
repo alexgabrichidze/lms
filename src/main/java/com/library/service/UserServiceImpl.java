@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
 
             logger.error("User creation failed: Email {} is already in use", user.getEmail());
             throw new InvalidUserException("Email is already in use.");
-        }   
+        }
 
         // Validate email format (basic validation)
         if (!EMAIL_PATTERN.matcher(user.getEmail()).matches()) {
@@ -90,10 +90,6 @@ public class UserServiceImpl implements UserService {
 
         // Log the user retrieval attempt
         logger.info("Fetching user with ID: {}", id);
-
-        // Validate user ID
-        validatePositiveId(id, "User ID",
-                () -> new InvalidUserException("User ID must be a positive integer."));
 
         // Fetch the user by ID
         User user = userDao.getUserById(id);
