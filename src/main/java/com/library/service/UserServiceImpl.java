@@ -155,14 +155,17 @@ public class UserServiceImpl implements UserService {
             throw new InvalidUserException("Invalid email format.");
         }
 
+        // Update the user details if they are not null
         if (user.getName() != null) {
             existingUser.setName(user.getName());
         }
 
+        // Update the user details if they are not null
         if (user.getEmail() != null) {
             existingUser.setEmail(user.getEmail());
         }
 
+        // Update the user details if they are not null
         if (user.getRole() != null) {
             existingUser.setRole(user.getRole());
         }
