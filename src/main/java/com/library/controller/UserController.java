@@ -9,4 +9,10 @@ public class UserController extends BaseController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     private static UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    
 }
