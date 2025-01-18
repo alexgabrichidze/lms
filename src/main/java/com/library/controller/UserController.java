@@ -1,8 +1,6 @@
 package com.library.controller;
 
 import com.library.service.UserService;
-import com.library.service.exceptions.BookNotFoundException;
-import com.library.service.exceptions.InvalidBookException;
 import com.library.service.exceptions.InvalidUserException;
 import com.library.service.exceptions.UserNotFoundException;
 
@@ -14,16 +12,36 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 
+/**
+ * Controller for handling user-related HTTP requests.
+ * Provides endpoints for managing users in the library, including CRUD
+ * operations and search functionality.
+ */
 public class UserController extends BaseController {
+
+    // Logger instance
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
+    // UserService object
     private static UserService userService;
 
+    /**
+     * Constructs a new UserController object with a custom UserService object.
+     *
+     * @param userService The UserService object to be used by the UserController.
+     */
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
-    
+    /**
+     * Handles incoming HTTP requests and routes them to the appropriate method
+     * based on the request path and method.
+     *
+     * @param exchange The HttpExchange object representing the HTTP request and
+     *                 response.
+     * @throws IOException If an I/O error occurs while handling the request.
+     */
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
