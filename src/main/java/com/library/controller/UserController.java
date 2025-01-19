@@ -65,7 +65,7 @@ public class UserController extends BaseController {
                 if (query != null) {
                     // handleSearchUsers(exchange, query);
                 } else {
-                    // handleUsersEndpoint(exchange, method);
+                    handleUsersEndpoint(exchange, method);
                 }
             } else if (path.matches("/users/\\d+")) {
                 int id = extractIdFromPath(path);
@@ -142,6 +142,67 @@ public class UserController extends BaseController {
 
                 // Log the successful creation of the new user
                 logger.info("Successfully created user with ID: {}", user.getId());
+                break;
+
+            default:
+
+                // Handle unsupported HTTP methods
+                sendResponse(exchange, 405, "Method not allowed.");
+                logger.warn("Method not allowed: {}", method);
+        }
+    }
+
+    /**
+     * Handles requests to the /users/{id} endpoint.
+     *
+     * @param exchange The HttpExchange object representing the HTTP request and
+     *                 response.
+     * @param method   The HTTP method (e.g., GET, PUT, DELETE).
+     * @param id       The ID of the user to operate on.
+     * @throws IOException If an I/O error occurs while handling the request.
+     */
+    private void handleUserEndpoint(HttpExchange exchange, String method, int id) throws IOException {
+        switch (method) {
+            case "GET":
+
+                // Retrieve the user by ID from the service
+                User user = userService.getUserById(id);
+
+                // Send the user details as JSON and log the success
+                sendResponse(exchange, 200, objectMapper.writeValueAsString(user));
+                logger.info("Successfully retrieved user with ID: {}", id);
+                break;
+
+            case "PATCH":
+
+                // Parse the request body into a User object
+                User updatedUser = parseRequestBody(exchange, User.class);
+
+                // Set the ID of the user to update
+                updatedUser.setId(id);
+
+                // Validate that required fields are not null or empty
+                validateFieldsNotEmpty(
+                        updatedUser.getName(), "Name",
+                        updatedUser.getEmail(), "Email",
+                        updatedUser.getRole() == null ? null : updatedUser.getRole().name(), "Role");
+
+                // Update the user
+                userService.updateUser(updatedUser);
+
+                // Send a success response and log the success
+                sendResponse(exchange, 200, "User updated successfully");
+                logger.info("Successfully updated user with ID: {}", id);
+                break;
+
+            case "DELETE":
+
+                // Delete the user by ID
+                userService.deleteUser(id);
+
+                // Send a success response and log the success
+                sendResponse(exchange, 204, "");
+                logger.info("Successfully deleted user with ID: {}", id);
                 break;
 
             default:
