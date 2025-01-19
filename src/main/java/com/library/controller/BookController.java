@@ -14,12 +14,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Controller for handling book-related HTTP requests.
@@ -359,41 +355,6 @@ public class BookController extends BaseController {
             // Handle unsupported HTTP methods
             sendResponse(exchange, 405, "Method Not Allowed");
             logger.warn("Method not allowed for book status endpoint: {}", method);
-        }
-    }
-
-    /**
-     * Parses query parameters from the query string.
-     *
-     * @param query The query string (e.g., "title=1984&author=George+Orwell").
-     * @return A map of query parameters.
-     */
-    private Map<String, String> parseQueryParameters(String query) {
-        return Stream.of(query.split("&")) // Split the query string by "&"
-                .map(param -> param.split("=")) // Split each parameter by "="
-                .collect(Collectors.toMap(
-                        arr -> URLDecoder.decode(arr[0], StandardCharsets.UTF_8), // Decode the parameter key
-                        arr -> URLDecoder.decode(arr.length > 1 ? arr[1] : "", StandardCharsets.UTF_8) // Decode the
-                                                                                                       // parameter
-                                                                                                       // value
-                ));
-    }
-
-    /**
-     * Validates that multiple string fields are not null or empty.
-     *
-     * @param fieldAndNamePairs Pairs of fields and their names (e.g., "title",
-     *                          "Title").
-     * @throws InvalidBookException If any field is null or empty.
-     */
-    private void validateFieldsNotEmpty(String... fieldAndNamePairs) {
-        for (int i = 0; i < fieldAndNamePairs.length; i += 2) {
-            String field = fieldAndNamePairs[i];
-            String fieldName = fieldAndNamePairs[i + 1];
-
-            if (field == null || field.trim().isEmpty()) {
-                throw new InvalidBookException(fieldName + " cannot be null or empty.");
-            }
         }
     }
 }

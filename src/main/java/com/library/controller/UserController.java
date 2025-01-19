@@ -4,6 +4,11 @@ import com.library.service.UserService;
 import com.library.service.exceptions.InvalidUserException;
 import com.library.service.exceptions.UserNotFoundException;
 
+import java.util.List;
+import com.library.model.User;
+
+import static com.library.util.ValidationUtil.*;
+
 import static com.library.util.ValidationUtil.*;
 import org.slf4j.LoggerFactory;
 import com.sun.net.httpserver.HttpExchange;
@@ -52,10 +57,10 @@ public class UserController extends BaseController {
 
         try {
 
-             // Log the incoming request
+            // Log the incoming request
             logger.info("Received {} request for path: {}", method, path);
 
-             // Route the request based on the path
+            // Route the request based on the path
             if (path.matches("/users")) {
                 if (query != null) {
                     // handleSearchUsers(exchange, query);
@@ -97,5 +102,40 @@ public class UserController extends BaseController {
         }
     }
 
-    
-}   
+    private void handleUsersEndpoint(HttpExchange exchange, String method) throws IOException {
+        switch (method) {
+            case "GET":
+
+                // Retrieve all users from the service
+                List<User> users = userService.getAllUsers();
+
+                // Send the list of users as JSON
+                sendResponse(exchange, 200, objectMapper.writeValueAsString(users));
+
+                // Log the successful retrieval of all users
+                logger.info("Successfully retrieved all users");
+                break;
+            case "POST":
+
+                // Parse the request body into a User object
+                User user = parseRequestBody(exchange, User.class);
+
+                // Validate that required fields are not null or empty
+                validateFieldsNotEmpty(
+                        user.getName(), "Name",
+                        user.getEmail(), "Email",
+                        user.getRole() == null ? null : user.getRole().name(), "Role");
+
+                // Create the new user
+                userService.createUser(user);
+
+                // Send a success response
+                sendResponse(exchange, 201, "User created successfully");
+
+                // Log the successful creation of the new user
+                logger.info("Successfully created user with ID: {}", user.getId());
+                break;
+        }
+    }
+
+}
