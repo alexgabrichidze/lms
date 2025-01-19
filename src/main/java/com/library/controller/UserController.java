@@ -3,20 +3,13 @@ package com.library.controller;
 import com.library.service.UserService;
 import com.library.service.exceptions.InvalidUserException;
 import com.library.service.exceptions.UserNotFoundException;
-
 import java.util.List;
 import java.util.Map;
-
 import com.library.model.User;
-
-import static com.library.util.ValidationUtil.*;
-
 import static com.library.util.ValidationUtil.*;
 import org.slf4j.LoggerFactory;
 import com.sun.net.httpserver.HttpExchange;
-
 import java.io.IOException;
-
 import org.slf4j.Logger;
 
 /**
@@ -30,7 +23,7 @@ public class UserController extends BaseController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     // UserService object
-    private static UserService userService;
+    private final UserService userService;
 
     /**
      * Constructs a new UserController object with a custom UserService object.
@@ -65,7 +58,7 @@ public class UserController extends BaseController {
             // Route the request based on the path
             if (path.matches("/users")) {
                 if (query != null) {
-                    // handleSearchUsers(exchange, query);
+                    handleSearchUsers(exchange, query);
                 } else {
                     handleUsersEndpoint(exchange, method);
                 }
@@ -224,7 +217,7 @@ public class UserController extends BaseController {
      * @throws IOException If an I/O error occurs while handling the request.
      */
     private void handleSearchUsers(HttpExchange exchange, String query) throws IOException {
-        
+
         // Parse the query parameters into a map
         Map<String, String> queryParams = parseQueryParameters(query);
 
