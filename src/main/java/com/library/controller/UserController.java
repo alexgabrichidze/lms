@@ -102,6 +102,14 @@ public class UserController extends BaseController {
         }
     }
 
+    /**
+     * Handles requests to the /users endpoint.
+     *
+     * @param exchange The HttpExchange object representing the HTTP request and
+     *                 response.
+     * @param method   The HTTP method (e.g., GET, POST).
+     * @throws IOException If an I/O error occurs while handling the request.
+     */
     private void handleUsersEndpoint(HttpExchange exchange, String method) throws IOException {
         switch (method) {
             case "GET":
@@ -135,6 +143,12 @@ public class UserController extends BaseController {
                 // Log the successful creation of the new user
                 logger.info("Successfully created user with ID: {}", user.getId());
                 break;
+
+            default:
+
+                // Handle unsupported HTTP methods
+                sendResponse(exchange, 405, "Method not allowed.");
+                logger.warn("Method not allowed: {}", method);
         }
     }
 
