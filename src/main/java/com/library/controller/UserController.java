@@ -49,7 +49,13 @@ public class UserController extends BaseController {
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
         String query = exchange.getRequestURI().getQuery();
+
         try {
+
+             // Log the incoming request
+            logger.info("Received {} request for path: {}", method, path);
+
+             // Route the request based on the path
             if (path.matches("/users")) {
                 if (query != null) {
                     // handleSearchUsers(exchange, query);
@@ -90,4 +96,6 @@ public class UserController extends BaseController {
             sendResponse(exchange, 500, "Internal server error. " + e.getMessage()); // Handle unexpected errors
         }
     }
-}
+
+    
+}   
