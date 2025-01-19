@@ -5,6 +5,8 @@ import com.library.service.exceptions.InvalidUserException;
 import com.library.service.exceptions.UserNotFoundException;
 
 import java.util.List;
+import java.util.Map;
+
 import com.library.model.User;
 
 import static com.library.util.ValidationUtil.*;
@@ -72,7 +74,7 @@ public class UserController extends BaseController {
 
                 validatePositiveId(id, "User ID", () -> new InvalidUserException("Invalid user ID"));
 
-                // handleUserEndpoint(exchange, method, id);
+                handleUserEndpoint(exchange, method, id);
             } else {
 
                 // Handle path not found errors
@@ -213,4 +215,38 @@ public class UserController extends BaseController {
         }
     }
 
+    /**
+     * Handles search requests to the /users endpoint with query parameters.
+     *
+     * @param exchange The HttpExchange object representing the HTTP request and
+     *                 response.
+     * @param query    The query string (e.g., email=user@example.com).
+     * @throws IOException If an I/O error occurs while handling the request.
+     */
+    private void handleSearchUsers(HttpExchange exchange, String query) throws IOException {
+        
+        // Parse the query parameters into a map
+        Map<String, String> queryParams = parseQueryParameters(query);
+
+        if (queryParams.containsKey("email")) {
+
+            // Search user by email
+            String email = queryParams.get("email");
+
+            // Validate the email format
+            validateFieldsNotEmpty(email, "Email");
+
+            // Retrieve the user by email from the service
+            User user = userService.getUserByEmail(email);
+
+            // Send the user details as JSON and log the success
+            sendResponse(exchange, 200, objectMapper.writeValueAsString(user));
+            logger.info("Successfully searched user by email: {}", email);
+        } else {
+
+            // Handle invalid search parameters
+            sendResponse(exchange, 400, "Invalid search parameter");
+            logger.warn("Invalid search parameter: {}", query);
+        }
+    }
 }
