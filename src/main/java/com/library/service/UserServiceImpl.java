@@ -149,12 +149,6 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException("User with ID " + user.getId() + " not found.");
         }
 
-        // Validate email format (basic validation)
-        if (!EMAIL_PATTERN.matcher(user.getEmail()).matches()) {
-            logger.error("User update failed: invalid email format.");
-            throw new InvalidUserException("Invalid email format.");
-        }
-
         // Update the user details if they are not null
         if (user.getName() != null) {
             existingUser.setName(user.getName());
@@ -162,6 +156,13 @@ public class UserServiceImpl implements UserService {
 
         // Update the user details if they are not null
         if (user.getEmail() != null) {
+            // Guard clause: Validate email format
+            if (!EMAIL_PATTERN.matcher(user.getEmail()).matches()) {
+                logger.error("User update failed: invalid email format.");
+                throw new InvalidUserException("Invalid email format.");
+            }
+
+            // Proceed with the update
             existingUser.setEmail(user.getEmail());
         }
 
@@ -170,8 +171,9 @@ public class UserServiceImpl implements UserService {
             existingUser.setRole(user.getRole());
         }
 
-        userDao.updateUser(existingUser); // Update the user
-        logger.info("User updated successfully: {}", user); // Log the success
+        // Update the user and log the success
+        userDao.updateUser(existingUser);
+        logger.info("User updated successfully: {}", user);
     }
 
     /**

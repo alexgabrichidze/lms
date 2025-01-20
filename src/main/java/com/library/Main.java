@@ -23,7 +23,7 @@ public class Main {
                                                                              // BookService
 
             // Initialize the UserService and UserController
-            UserDao userDao = new UserDaoImpl(); 
+            UserDao userDao = new UserDaoImpl();
             UserService userService = new UserServiceImpl(userDao); // Initialize UserService with UserDao
             UserController userController = new UserController(userService); // Initialize UserController with
                                                                              // UserService
