@@ -176,12 +176,6 @@ public class UserController extends BaseController {
                 // Set the ID of the user to update
                 updatedUser.setId(id);
 
-                // Validate that required fields are not null or empty
-                validateFieldsNotEmpty(
-                        updatedUser.getName(), "Name",
-                        updatedUser.getEmail(), "Email",
-                        updatedUser.getRole() == null ? null : updatedUser.getRole().name(), "Role");
-
                 // Update the user
                 userService.updateUser(updatedUser);
 
