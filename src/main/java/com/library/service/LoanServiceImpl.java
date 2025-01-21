@@ -111,11 +111,7 @@ public class LoanServiceImpl implements LoanService {
         // Log the loan retrieval attempt
         logger.info("Fetching loan with ID: {}", id);
 
-        // Validate loan ID
-        validatePositiveId(id, "Loan ID",
-                () -> new InvalidLoanException("Loan ID must be a positive integer."));
-
-        // Fetch the loan by ID
+        // Fetch the loan by ID and check if the loan exists
         Loan loan = loanDao.getLoanById(id);
         if (loan == null) {
             throw new LoanNotFoundException("Loan with ID " + id + " not found.");
