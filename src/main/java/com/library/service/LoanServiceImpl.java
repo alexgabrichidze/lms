@@ -2,6 +2,7 @@ package com.library.service;
 
 import com.library.dao.LoanDao;
 import com.library.dao.LoanDaoImpl;
+import com.library.model.BookStatus;
 import com.library.model.Loan;
 import com.library.service.exceptions.InvalidLoanException;
 import com.library.service.exceptions.LoanConflictException;
@@ -75,24 +76,26 @@ public class LoanServiceImpl implements LoanService {
         // Log the loan creation attempt
         logger.info("Attempting to create loan: {}", loan);
 
-        // Validate loan object
-        if (loan == null) {
-            throw new InvalidLoanException("Loan cannot be null.");
+        // Check if the book exists (by ID)
+        if (bookService.getBookById(loan.getBookId()) == null) {
+            throw new InvalidLoanException("Book with ID " + loan.getBookId() + " does not exist.");
         }
 
-        // Check for conflicts (e.g., the book is already on loan)
-        List<Loan> activeLoans = loanDao.getLoansByBookId(loan.getBookId());
-
-        // Check if the book is already on loan
-        if (activeLoans.stream().anyMatch(l -> l.getReturnDate() == null)) {
-            throw new LoanConflictException("Book is already on loan.");
+        // Check if the user exists (by ID)
+        if (userService.getUserById(loan.getUserId()) == null) {
+            throw new InvalidLoanException("User with ID " + loan.getUserId() + " does not exist.");
         }
 
-        // Add the loan to the database and log the success
+        // Check if the book is available
+        if (!bookService.getBookById(loan.getBookId()).getStatus().equals(BookStatus.AVAILABLE)) {
+            throw new LoanConflictException("Book with ID " + loan.getBookId() + " is not available.");
+        }
+
+        // Change book's status to BORROWED
+        bookService.updateBookStatus(loan.getBookId(), BookStatus.BORROWED);
+
+        // Add loan to the loans table and log the success
         loanDao.addLoan(loan);
-
-        // here?
-
         logger.info("Loan created successfully: {}", loan);
     }
 
