@@ -1,11 +1,12 @@
 package com.library.service;
 
-import com.library.dao.LoanDao;
+import com.library.dao.*;
 import com.library.dao.LoanDaoImpl;
 import com.library.model.Loan;
 import com.library.service.exceptions.InvalidLoanException;
 import com.library.service.exceptions.LoanConflictException;
 import com.library.service.exceptions.LoanNotFoundException;
+import com.library.dao.BookDao;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +21,17 @@ import static com.library.util.ValidationUtil.*;
  */
 public class LoanServiceImpl implements LoanService {
 
-    // Logger instance for logging events
+    // Logger instance
     private static final Logger logger = LoggerFactory.getLogger(LoanServiceImpl.class);
 
     // Data access object for loans
     private final LoanDao loanDao;
+
+    // Data access object for books
+    private final BookDao bookDao;
+
+    // Data access object for users
+    private final UserDao userDao;
 
     /**
      * Default constructor initializing with the default LoanDao implementation.
@@ -58,12 +65,6 @@ public class LoanServiceImpl implements LoanService {
             throw new InvalidLoanException("Loan cannot be null.");
         }
 
-        // Validate loan fields
-        validatePositiveId(loan.getUserId(), "User ID",
-                () -> new InvalidLoanException("User ID must be a positive integer."));
-        validatePositiveId(loan.getBookId(), "Book ID",
-                () -> new InvalidLoanException("Book ID must be a positive integer."));
-
         // Check for conflicts (e.g., the book is already on loan)
         List<Loan> activeLoans = loanDao.getLoansByBookId(loan.getBookId());
 
@@ -74,6 +75,9 @@ public class LoanServiceImpl implements LoanService {
 
         // Add the loan to the database and log the success
         loanDao.addLoan(loan);
+
+        // here?
+
         logger.info("Loan created successfully: {}", loan);
     }
 
