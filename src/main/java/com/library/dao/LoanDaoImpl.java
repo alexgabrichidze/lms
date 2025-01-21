@@ -12,12 +12,18 @@ import java.util.List;
 /**
  * Implementation of the LoanDao interface.
  * Provides methods to perform CRUD operations and specific queries on the loans
- * table.
+ * table in the database.
  */
 public class LoanDaoImpl implements LoanDao {
 
+    // Logger instance
     private static final Logger logger = LoggerFactory.getLogger(LoanDaoImpl.class);
 
+    /**
+     * Add a new loan to the loans table.
+     * 
+     * @param loan the loan to add
+     */
     @Override
     public void addLoan(Loan loan) {
         String sql = "INSERT INTO loans (user_id, book_id, loan_date, return_date) VALUES (?, ?, ?, ?) RETURNING id";
@@ -50,6 +56,11 @@ public class LoanDaoImpl implements LoanDao {
         }
     }
 
+    /**
+     * Retrieves a loan by its ID from the loans table.
+     * 
+     * @param id the ID of the loan to retrieve
+     */
     @Override
     public Loan getLoanById(int id) {
         String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans WHERE id = ?";
@@ -81,6 +92,11 @@ public class LoanDaoImpl implements LoanDao {
         }
     }
 
+    /**
+     * Retrieves all loans from the loans table.
+     * 
+     * @return a list of all loans
+     */
     @Override
     public List<Loan> getAllLoans() {
         String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans";
@@ -112,6 +128,11 @@ public class LoanDaoImpl implements LoanDao {
         }
     }
 
+    /**
+     * Updates an existing loan in the loans table.
+     * 
+     * @param loan the loan to update
+     */
     @Override
     public void updateLoan(Loan loan) {
         String sql = "UPDATE loans SET user_id = ?, book_id = ?, loan_date = ?, return_date = ? WHERE id = ?";
@@ -140,6 +161,11 @@ public class LoanDaoImpl implements LoanDao {
         }
     }
 
+    /**
+     * Deletes a loan by its ID from the loans table.
+     * 
+     * @param id the ID of the loan to delete
+     */
     @Override
     public void deleteLoan(int id) {
         String sql = "DELETE FROM loans WHERE id = ?";
@@ -163,6 +189,12 @@ public class LoanDaoImpl implements LoanDao {
         }
     }
 
+    /**
+     * Retrieves all loans for a specific user by user ID from the loans table.
+     * 
+     * @param userId the ID of the user
+     * @return a list of loans for the user
+     */
     @Override
     public List<Loan> getLoansByUserId(int userId) {
         String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans WHERE user_id = ?";
@@ -194,6 +226,12 @@ public class LoanDaoImpl implements LoanDao {
         }
     }
 
+    /**
+     * Retrieves all loans for a specific book by book ID from the loans table.
+     * 
+     * @param bookId the ID of the book
+     * @return a list of loans for the book
+     */
     @Override
     public List<Loan> getLoansByBookId(int bookId) {
         String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans WHERE book_id = ?";
@@ -225,6 +263,11 @@ public class LoanDaoImpl implements LoanDao {
         }
     }
 
+    /**
+     * Retrieves all active loans from the loans table.
+     * 
+     * @return a list of active loans
+     */
     @Override
     public List<Loan> getActiveLoans() {
         String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans WHERE return_date IS NULL";

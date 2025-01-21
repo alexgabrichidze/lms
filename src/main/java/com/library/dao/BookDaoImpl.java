@@ -17,11 +17,11 @@ import java.util.List;
  */
 public class BookDaoImpl implements BookDao {
 
-    // Logger for debugging and error logging
+    // Logger instance
     private static final Logger logger = LoggerFactory.getLogger(BookDaoImpl.class);
 
     /**
-     * Adds a new book to the database.
+     * Adds a new book to the books table.
      *
      * @param book the Book object to be added
      */
@@ -59,7 +59,7 @@ public class BookDaoImpl implements BookDao {
     }
 
     /**
-     * Retrieves a book by its ID from the database.
+     * Retrieves a book by its ID from the books table.
      *
      * @param id the ID of the book to retrieve
      * @return the Book object if found, or null if no book with the given ID exists
@@ -102,7 +102,7 @@ public class BookDaoImpl implements BookDao {
     }
 
     /**
-     * Retrieves all books from the database.
+     * Retrieves all books from the books table.
      *
      * @return a list of all Book objects, or an empty list if no books are found
      */
@@ -137,7 +137,7 @@ public class BookDaoImpl implements BookDao {
     }
 
     /**
-     * Updates the details of an existing book in the database.
+     * Updates an existing book in the books table.
      *
      * @param book the Book object containing the updated details
      */
@@ -173,7 +173,7 @@ public class BookDaoImpl implements BookDao {
     }
 
     /**
-     * Deletes a book from the database by its ID.
+     * Deletes a book by its ID from the books table.
      *
      * @param id the ID of the book to delete
      */
@@ -202,7 +202,7 @@ public class BookDaoImpl implements BookDao {
     }
 
     /**
-     * Retrieves books by their title from the database.
+     * Retrieves books by their title from the books table.
      *
      * @param title the title to search for (case-insensitive, partial matches
      *              allowed)
@@ -241,7 +241,7 @@ public class BookDaoImpl implements BookDao {
     }
 
     /**
-     * Retrieves books by their author from the database.
+     * Retrieves books by their author from the books table.
      *
      * @param author the author to search for (case-insensitive, partial matches
      *               allowed)
@@ -282,7 +282,7 @@ public class BookDaoImpl implements BookDao {
     }
 
     /**
-     * Retrieves a book by its ISBN from the database.
+     * Retrieves a book by its ISBN from the books table.
      *
      * @param isbn the ISBN to search for
      * @return the Book object if found, or null if no book with the given ISBN
