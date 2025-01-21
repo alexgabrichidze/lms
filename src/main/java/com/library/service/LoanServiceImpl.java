@@ -34,19 +34,26 @@ public class LoanServiceImpl implements LoanService {
     private final UserDao userDao;
 
     /**
-     * Default constructor initializing with the default LoanDao implementation.
+     * Default constructor initializing with the default Loan, Book, and User DAO
+     * implementation.
      */
     public LoanServiceImpl() {
         this.loanDao = new LoanDaoImpl(); // Default implementation
+        this.bookDao = new BookDaoImpl(); // Default implementation
+        this.userDao = new UserDaoImpl(); // Default implementation
     }
 
     /**
-     * Constructor for providing a custom LoanDao implementation.
+     * Constructor for providing a custom Loan, Book, and User DAO implementations.
      *
      * @param loanDao the custom LoanDao implementation to use
      */
-    public LoanServiceImpl(LoanDao loanDao) {
-        this.loanDao = loanDao; // Custom implementation
+    public LoanServiceImpl(LoanDao loanDao, BookDao bookDao, UserDao userDao) {
+
+        // Custom DAO implementations
+        this.loanDao = loanDao;
+        this.bookDao = bookDao;
+        this.userDao = userDao;
     }
 
     /**
