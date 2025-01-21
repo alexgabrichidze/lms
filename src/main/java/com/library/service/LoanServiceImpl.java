@@ -1,12 +1,11 @@
 package com.library.service;
 
-import com.library.dao.*;
+import com.library.dao.LoanDao;
 import com.library.dao.LoanDaoImpl;
 import com.library.model.Loan;
 import com.library.service.exceptions.InvalidLoanException;
 import com.library.service.exceptions.LoanConflictException;
 import com.library.service.exceptions.LoanNotFoundException;
-import com.library.dao.BookDao;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,33 +26,42 @@ public class LoanServiceImpl implements LoanService {
     // Data access object for loans
     private final LoanDao loanDao;
 
-    // Data access object for books
-    private final BookDao bookDao;
+    // Book service object for books
+    private final BookService bookService;
 
-    // Data access object for users
-    private final UserDao userDao;
+    // User service object for users
+    private final UserService userService;
 
     /**
-     * Default constructor initializing with the default Loan, Book, and User DAO
-     * implementation.
+     * Default constructor initializing with the default LoanDao implementation.
      */
     public LoanServiceImpl() {
-        this.loanDao = new LoanDaoImpl(); // Default implementation
-        this.bookDao = new BookDaoImpl(); // Default implementation
-        this.userDao = new UserDaoImpl(); // Default implementation
+
+        // Default implementation of LoanDao
+        this.loanDao = new LoanDaoImpl();
+
+        // Default implementation of BookService
+        this.bookService = new BookServiceImpl();
+
+        // Default implementation of UserService
+        this.userService = new UserServiceImpl();
     }
 
     /**
-     * Constructor for providing a custom Loan, Book, and User DAO implementations.
+     * Constructor for providing a custom LoanDao implementation.
      *
      * @param loanDao the custom LoanDao implementation to use
      */
-    public LoanServiceImpl(LoanDao loanDao, BookDao bookDao, UserDao userDao) {
+    public LoanServiceImpl(LoanDao loanDao, BookService bookService, UserService userService) {
 
-        // Custom DAO implementations
+        // Custom implementation of LoanDao
         this.loanDao = loanDao;
-        this.bookDao = bookDao;
-        this.userDao = userDao;
+
+        // Default implementation of BookService
+        this.bookService = new BookServiceImpl();
+
+        // Default implementation of UserService
+        this.userService = new UserServiceImpl();
     }
 
     /**
