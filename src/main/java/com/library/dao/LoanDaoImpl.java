@@ -256,7 +256,7 @@ public class LoanDaoImpl implements LoanDao {
                 resultSet.getInt("user_id"),
                 resultSet.getInt("book_id"),
                 resultSet.getDate("loan_date").toLocalDate(),
-                resultSet.getDate("return_date") != null ? resultSet.getDate("return_date").toLocalDate() : null
+                resultSet.getDate("return_date").toLocalDate()
 
         );
 
