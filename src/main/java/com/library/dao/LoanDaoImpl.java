@@ -22,7 +22,8 @@ public class LoanDaoImpl implements LoanDao {
     public void addLoan(Loan loan) {
         String sql = "INSERT INTO loans (user_id, book_id, loan_date, return_date) VALUES (?, ?, ?, ?) RETURNING id";
 
-        logger.debug("Attempting to add loan: {}", loan); // Log the loan details before execution
+        // Log the loan details before execution
+        logger.info("Attempting to add loan: {}", loan);
 
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -52,7 +53,9 @@ public class LoanDaoImpl implements LoanDao {
     @Override
     public Loan getLoanById(int id) {
         String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans WHERE id = ?";
-        logger.debug("Fetching loan with ID: {}", id); // Log the ID being fetched
+
+        // Log the ID being fetched
+        logger.info("Fetching loan with ID: {}", id);
 
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -81,7 +84,9 @@ public class LoanDaoImpl implements LoanDao {
     @Override
     public List<Loan> getAllLoans() {
         String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans";
-        logger.debug("Fetching all loans"); // Log the fetch action
+
+        // Log the loans being fetched
+        logger.info("Fetching all loans");
 
         List<Loan> loans = new ArrayList<>();
 
@@ -111,7 +116,8 @@ public class LoanDaoImpl implements LoanDao {
     public void updateLoan(Loan loan) {
         String sql = "UPDATE loans SET user_id = ?, book_id = ?, loan_date = ?, return_date = ? WHERE id = ?";
 
-        logger.debug("Updating loan: {}", loan); // Log the loan being updated
+        // Log the loan being updated
+        logger.info("Updating loan: {}", loan);
 
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -138,7 +144,8 @@ public class LoanDaoImpl implements LoanDao {
     public void deleteLoan(int id) {
         String sql = "DELETE FROM loans WHERE id = ?";
 
-        logger.debug("Deleting loan with ID: {}", id); // Log the ID being deleted
+        // Log the ID being deleted
+        logger.info("Deleting loan with ID: {}", id);
 
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -159,7 +166,9 @@ public class LoanDaoImpl implements LoanDao {
     @Override
     public List<Loan> getLoansByUserId(int userId) {
         String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans WHERE user_id = ?";
-        logger.debug("Fetching loans for user ID: {}", userId); // Log the user ID
+
+        // Log the loans being fetched by used ID
+        logger.info("Fetching loans for user ID: {}", userId);
 
         List<Loan> loans = new ArrayList<>();
 
@@ -188,7 +197,9 @@ public class LoanDaoImpl implements LoanDao {
     @Override
     public List<Loan> getLoansByBookId(int bookId) {
         String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans WHERE book_id = ?";
-        logger.debug("Fetching loans for book ID: {}", bookId); // Log the book ID
+
+        // Log the loans being fetched by book ID
+        logger.info("Fetching loans for book ID: {}", bookId);
 
         List<Loan> loans = new ArrayList<>();
 
@@ -217,7 +228,9 @@ public class LoanDaoImpl implements LoanDao {
     @Override
     public List<Loan> getActiveLoans() {
         String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans WHERE return_date IS NULL";
-        logger.debug("Fetching active loans"); // Log the fetch action
+
+        // Log the active loans being fetched
+        logger.info("Fetching active loans");
 
         List<Loan> loans = new ArrayList<>();
 
