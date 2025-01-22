@@ -136,6 +136,12 @@ public class LoanServiceImpl implements LoanService {
         // Fetch all loans
         List<Loan> loans = loanDao.getAllLoans();
 
+        // Check if nothing has been found
+        if (loans.isEmpty()) {
+            logger.warn("No loans found.");
+            throw new LoanNotFoundException("No loans found.");
+        }
+
         // Log the success and return the list
         logger.info("Successfully fetched {} loans.", loans.size());
         return loans;
