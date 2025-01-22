@@ -224,13 +224,10 @@ public class LoanServiceImpl implements LoanService {
         // Log the loan deletion attempt
         logger.info("Attempting to delete loan with ID: {}", id);
 
-        // Validate loan ID
-        validatePositiveId(id, "Loan ID",
-                () -> new InvalidLoanException("Loan ID must be a positive integer."));
-
         // Check if the loan exists
         Loan loan = loanDao.getLoanById(id);
         if (loan == null) {
+            logger.warn("Loan with ID {} not found for deletion.", id);
             throw new LoanNotFoundException("Loan with ID " + id + " not found.");
         }
 
