@@ -55,14 +55,6 @@ public interface LoanService {
     List<Loan> getLoansByUserId(int userId);
 
     /**
-     * Retrieves loans for a specific book by its book ID.
-     *
-     * @param bookId the book ID for which to retrieve loans
-     * @return a list of loans associated with the book
-     */
-    List<Loan> getLoansByBookId(int bookId);
-
-    /**
      * Retrieves all active loans (loans that have not been returned).
      *
      * @return a list of active loans

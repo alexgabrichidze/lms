@@ -261,32 +261,6 @@ public class LoanServiceImpl implements LoanService {
     }
 
     /**
-     * Retrieves loans for a specific book by its book ID.
-     *
-     * @param bookId the book ID for which to retrieve loans
-     * @return a list of loans associated with the book
-     */
-    @Override
-    public List<Loan> getLoansByBookId(int bookId) {
-
-        // Log the loan retrieval attempt
-        logger.info("Fetching loans for book ID: {}", bookId);
-
-        // Fetch loans by book ID
-        List<Loan> loans = loanDao.getLoansByBookId(bookId);
-
-        // Check if nothing has been found
-        if (loans.isEmpty()) {
-            logger.warn("No loans found.");
-            throw new LoanNotFoundException("No loans found.");
-        }
-
-        // Log the success and return the list
-        logger.info("Successfully fetched {} loans for book ID: {}", loans.size(), bookId);
-        return loans;
-    }
-
-    /**
      * Retrieves all active loans (loans that have not been returned).
      *
      * @return a list of active loans
