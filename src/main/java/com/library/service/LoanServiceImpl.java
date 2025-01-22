@@ -158,29 +158,58 @@ public class LoanServiceImpl implements LoanService {
         // Log the loan update attempt
         logger.info("Attempting to update loan: {}", loan);
 
-        // Validate loan object
-        if (loan == null) {
-            throw new InvalidLoanException("Loan cannot be null.");
-        }
-
-        // Validate loan ID
-        validatePositiveId(loan.getId(), "Loan ID",
-                () -> new InvalidLoanException("Loan ID must be a positive integer."));
-
-        // Check if the loan exists
+        // Check if the loan exists before proceeding
         Loan existingLoan = loanDao.getLoanById(loan.getId());
+
+        // If loan is not found, log a warning and throw an exception
         if (existingLoan == null) {
+            logger.warn("Loan with ID {} not found for update.", loan.getId());
             throw new LoanNotFoundException("Loan with ID " + loan.getId() + " not found.");
         }
 
-        // Validate user ID and book ID if updated
-        validatePositiveId(loan.getUserId(), "User ID",
-                () -> new InvalidLoanException("User ID must be a positive integer."));
-        validatePositiveId(loan.getBookId(), "Book ID",
-                () -> new InvalidLoanException("Book ID must be a positive integer."));
+        // Merge updated fields into the existing loan
+        if (loan.getUserId() != 0) {
+
+            // Check if the user exists (by ID)
+            if (userService.getUserById(loan.getUserId()) == null) {
+                logger.warn("User with ID {} does not exist.", loan.getUserId());
+                throw new InvalidLoanException("User with ID " + loan.getUserId() + " does not exist.");
+            }
+            existingLoan.setUserId(loan.getUserId());
+        }
+
+        if (loan.getBookId() != 0) {
+
+            // Check if the book exists (by ID)
+            if (bookService.getBookById(loan.getBookId()) == null) {
+                logger.warn("Book with ID {} does not exist.", loan.getBookId());
+                throw new InvalidLoanException("Book with ID " + loan.getBookId() + " does not exist.");
+            }
+            existingLoan.setBookId(loan.getBookId());
+        }
+
+        if (loan.getLoanDate() != null) {
+
+            // Check if loan date is before return date
+            if (loan.getLoanDate().isAfter(loan.getReturnDate())) {
+                logger.warn("Loan date cannot be after return date.");
+                throw new InvalidLoanException("Loan date cannot be after return date.");
+            }
+            existingLoan.setLoanDate(loan.getLoanDate());
+        }
+
+        if (loan.getReturnDate() != null) {
+
+            // Check if return date is after loan date
+            if (loan.getReturnDate().isBefore(loan.getLoanDate())) {
+                logger.warn("Return date cannot be before loan date.");
+                throw new InvalidLoanException("Return date cannot be before loan date.");
+            }
+            existingLoan.setReturnDate(loan.getReturnDate());
+        }
 
         // Update the loan in the database and log the success
-        loanDao.updateLoan(loan);
+        loanDao.updateLoan(existingLoan);
         logger.info("Loan updated successfully: {}", loan);
     }
 
