@@ -248,12 +248,14 @@ public class LoanServiceImpl implements LoanService {
         // Log the loan retrieval attempt
         logger.info("Fetching loans for user ID: {}", userId);
 
-        // Validate user ID
-        validatePositiveId(userId, "User ID",
-                () -> new InvalidLoanException("User ID must be a positive integer."));
-
         // Fetch loans by user ID
         List<Loan> loans = loanDao.getLoansByUserId(userId);
+
+        // Check if nothing has been found
+        if (loans.isEmpty()) {
+            logger.warn("No loans found.");
+            throw new LoanNotFoundException("No loans found.");
+        }
 
         // Log the success and return the list
         logger.info("Successfully fetched {} loans for user ID: {}", loans.size(), userId);
@@ -272,12 +274,14 @@ public class LoanServiceImpl implements LoanService {
         // Log the loan retrieval attempt
         logger.info("Fetching loans for book ID: {}", bookId);
 
-        // Validate book ID
-        validatePositiveId(bookId, "Book ID",
-                () -> new InvalidLoanException("Book ID must be a positive integer."));
-
         // Fetch loans by book ID
         List<Loan> loans = loanDao.getLoansByBookId(bookId);
+
+        // Check if nothing has been found
+        if (loans.isEmpty()) {
+            logger.warn("No loans found.");
+            throw new LoanNotFoundException("No loans found.");
+        }
 
         // Log the success and return the list
         logger.info("Successfully fetched {} loans for book ID: {}", loans.size(), bookId);
@@ -297,6 +301,12 @@ public class LoanServiceImpl implements LoanService {
 
         // Fetch active loans
         List<Loan> loans = loanDao.getActiveLoans();
+
+        // Check if nothing has been found
+        if (loans.isEmpty()) {
+            logger.warn("No loans found.");
+            throw new LoanNotFoundException("No loans found.");
+        }
 
         // Log the success and return the list
         logger.info("Successfully fetched {} active loans.", loans.size());
