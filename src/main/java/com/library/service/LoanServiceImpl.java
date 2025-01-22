@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import static com.library.util.ValidationUtil.*;
-
 /**
  * Implementation of the LoanService interface.
  * Handles business logic for loan-related operations, including validation.
