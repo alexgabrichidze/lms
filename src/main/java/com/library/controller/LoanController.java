@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 
 import com.library.service.LoanService;
 import com.library.model.Loan;
-import com.library.model.User;
 
 import java.util.List;
 import java.util.Map;
