@@ -5,8 +5,10 @@ import org.slf4j.Logger;
 
 import com.library.service.LoanService;
 import com.library.model.Loan;
+import com.library.model.User;
 
 import java.util.List;
+import java.util.Map;
 
 import com.library.service.exceptions.InvalidLoanException;
 import com.library.service.exceptions.LoanConflictException;
@@ -55,7 +57,7 @@ public class LoanController extends BaseController {
 
             if (path.matches("/loans")) {
                 if (query != null) {
-                    // handleSearchLoans(exchange, query);
+                    handleSearchLoans(exchange, query);
                 } else {
                     handleLoansEndpoint(exchange, method);
                 }
@@ -190,6 +192,41 @@ public class LoanController extends BaseController {
                 // Handle unsupported HTTP methods
                 sendResponse(exchange, 405, "Method not allowed.");
                 logger.warn("Method not allowed: {}", method);
+        }
+    }
+
+    /**
+     * Handles requests to the /loans endpoint with query parameters.
+     *
+     * @param exchange The HttpExchange object representing the HTTP request and
+     *                 response.
+     * @param query    The query parameters of the request.
+     * @throws IOException If an I/O error occurs while handling the request.
+     */
+    private void handleSearchLoans(HttpExchange exchange, String query) throws IOException {
+
+        // Parse the query parameters into a map
+        Map<String, String> queryParams = parseQueryParameters(query);
+
+        if (queryParams.containsKey("userId")) {
+
+            // Parse the user ID from the query parameters
+            Integer userId = Integer.parseInt(queryParams.get("userId"));
+
+            // Validate that the user ID is positive
+            validatePositiveId(userId, "User ID", () -> new InvalidLoanException("Invalid user ID field of the loan"));
+
+            // Retrieve all the loans by user ID from the service
+            List<Loan> loans = loanService.getLoansByUserId(userId);
+
+            // Send the loans info as JSON and log the success
+            sendResponse(exchange, 200, objectMapper.writeValueAsString(loans));
+            logger.info("Successfully searched loans by user ID: {}", userId);
+        } else {
+
+            // Handle invalid search parameters
+            sendResponse(exchange, 400, "Invalid search parameter");
+            logger.warn("Invalid search parameter: {}", query);
         }
     }
 }
