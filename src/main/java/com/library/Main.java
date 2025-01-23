@@ -28,6 +28,15 @@ public class Main {
             UserController userController = new UserController(userService); // Initialize UserController with
                                                                              // UserService
 
+            // Initialize the LoanService and LoanController
+            LoanDao loanDao = new LoanDaoImpl();
+            LoanService loanService = new LoanServiceImpl(loanDao, bookService, userService); // Initialize LoanService
+                                                                                              // with LoanDao,
+                                                                                              // BookService, and
+                                                                                              // UserService
+            LoanController loanController = new LoanController(loanService); // Initialize LoanController with
+                                                                             // LoanService
+
             // Create an HTTP server listening on port 8080
             HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
@@ -36,6 +45,9 @@ public class Main {
 
             // Register the UserController to handle requests to the /users path
             server.createContext("/users", userController);
+
+            // Register the LoanController to handle requests to the /loans path
+            server.createContext("/loans", loanController);
 
             // Start the server
             server.start();
