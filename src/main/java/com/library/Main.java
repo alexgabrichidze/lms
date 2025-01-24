@@ -59,7 +59,7 @@ public class Main {
             logger.info("Server started on port 8080.");
 
         } catch (IOException e) {
-            logger.error("Failed to start the server: {}", e.getMessage());
+            logger.error("Failed to start the server: {}", e);
         }
     }
 }
