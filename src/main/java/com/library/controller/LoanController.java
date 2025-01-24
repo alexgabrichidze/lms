@@ -256,7 +256,6 @@ public class LoanController extends BaseController {
                 logger.info("Successfully updated loan with ID: {}", id);
                 break;
             case "DELETE":
-
                 // Delete the loan by ID
                 loanService.deleteLoan(id);
 
