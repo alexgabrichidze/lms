@@ -4,6 +4,8 @@ import com.library.controller.*;
 import com.library.dao.*;
 import com.library.service.*;
 import com.sun.net.httpserver.HttpServer;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -12,6 +14,9 @@ import java.net.InetSocketAddress;
  * Main class to start the HTTP server and register the BookController.
  */
 public class Main {
+
+    // Logger instance
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
         try {
@@ -51,11 +56,10 @@ public class Main {
 
             // Start the server
             server.start();
-            System.out.println("Server started on port 8080.");
+            logger.info("Server started on port 8080.");
 
         } catch (IOException e) {
-            System.err.println("Failed to start the server: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Failed to start the server: {}", e.getMessage());
         }
     }
 }
