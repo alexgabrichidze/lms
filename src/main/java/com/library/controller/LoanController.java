@@ -65,7 +65,7 @@ public class LoanController extends BaseController {
 
                 validatePositiveId(id, "Loan ID", () -> new InvalidLoanException("Invalid loan ID"));
 
-                // handleLoanEndpoint(exchange, method, id);
+                handleLoanEndpoint(exchange, method, id);
             } else if (path.matches("/loans/active")) {
                 handleActiveLoansEndpoint(exchange, method);
             } else {
@@ -226,6 +226,44 @@ public class LoanController extends BaseController {
             // Handle invalid search parameters
             sendResponse(exchange, 400, "Invalid search parameter");
             logger.warn("Invalid search parameter: {}", query);
+        }
+    }
+
+    private void handleLoanEndpoint(HttpExchange exchange, String method, int id) throws IOException {
+        switch (method) {
+            case "GET":
+
+                // Retrieve the loan by ID from the service
+                Loan loan = loanService.getLoanById(id);
+
+                // Send the loan info as JSON and log the success
+                sendResponse(exchange, 200, objectMapper.writeValueAsString(loan));
+                logger.info("Successfully retrieved loan with ID: {}", id);
+                break;
+            case "PATCH":
+
+                // Parse the request body into a Loan object
+                Loan updatedLoan = parseRequestBody(exchange, Loan.class);
+
+                // Set the ID of the updated loan
+                updatedLoan.setId(id);
+
+                // Update the loan
+                loanService.updateLoan(updatedLoan);
+
+                // Send a success response and log the success
+                sendResponse(exchange, 200, "Loan updated successfully");
+                logger.info("Successfully updated loan with ID: {}", id);
+                break;
+            case "DELETE":
+
+                // Delete the loan by ID
+                loanService.deleteLoan(id);
+
+                // Send a success response and log the success
+                sendResponse(exchange, 204, "");
+                logger.info("Successfully deleted loan with ID: {}", id);
+                break;
         }
     }
 }
