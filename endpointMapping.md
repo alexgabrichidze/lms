@@ -39,7 +39,6 @@
 | `PATCH`         | `/loans/{id}`            | Update a loan by ID.  |
 | `DELETE`        | `/loans/{id}`            | Delete a loan by ID.  |
 | `GET`           | `/loans?userId={userId}` | Get loans by user ID. |
-| `GET`           | `/loans/active`          | Get all active loans. |
 
 ---
 
