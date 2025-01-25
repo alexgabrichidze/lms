@@ -68,8 +68,6 @@ public class LoanController extends BaseController {
                 validatePositiveId(id, "Loan ID", () -> new InvalidLoanException("Invalid loan ID"));
 
                 handleLoanEndpoint(exchange, method, id);
-            } else if (path.matches("/loans/active")) {
-                handleActiveLoansEndpoint(exchange, method);
             } else {
 
                 // Handle path not found errors
@@ -156,36 +154,6 @@ public class LoanController extends BaseController {
 
                 // Log the successful creation of the new loan
                 logger.info("Successfully created loan with ID: {}", loan.getId());
-                break;
-
-            default:
-
-                // Handle unsupported HTTP methods
-                sendResponse(exchange, 405, "Method not allowed.");
-                logger.warn("Method not allowed: {}", method);
-        }
-    }
-
-    /**
-     * Handles requests to the /loans/active endpoint.
-     *
-     * @param exchange The HttpExchange object representing the HTTP request and
-     *                 response.
-     * @param method   The HTTP method (e.g., GET, POST).
-     * @throws IOException If an I/O error occurs while handling the request.
-     */
-    private void handleActiveLoansEndpoint(HttpExchange exchange, String method) throws IOException {
-        switch (method) {
-            case "GET":
-
-                // Retrieve all active loans from the service
-                List<Loan> loans = loanService.getActiveLoans();
-
-                // Send the list of active loans as JSON
-                sendResponse(exchange, 200, objectMapper.writeValueAsString(loans));
-
-                // Log the successful retrieval of all active loans
-                logger.info("Successfully retrieved all active loans");
                 break;
 
             default:

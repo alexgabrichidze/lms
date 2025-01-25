@@ -61,11 +61,4 @@ public interface LoanDao {
      * @return a list of Loan objects for the book, or an empty list if none exist
      */
     List<Loan> getLoansByBookId(int bookId);
-
-    /**
-     * Retrieves all active loans (loans where the return date is null).
-     *
-     * @return a list of active Loan objects, or an empty list if none exist
-     */
-    List<Loan> getActiveLoans();
 }

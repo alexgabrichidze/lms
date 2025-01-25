@@ -264,40 +264,6 @@ public class LoanDaoImpl implements LoanDao {
     }
 
     /**
-     * Retrieves all active loans from the loans table.
-     * 
-     * @return a list of active loans
-     */
-    @Override
-    public List<Loan> getActiveLoans() {
-        String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans WHERE return_date IS NULL";
-
-        // Log the active loans being fetched
-        logger.info("Fetching active loans");
-
-        List<Loan> loans = new ArrayList<>();
-
-        try (Connection connection = ConnectionManager.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql);
-                ResultSet resultSet = statement.executeQuery()) {
-
-            // Iterate over the result set and add each loan to the list
-            while (resultSet.next()) {
-                loans.add(mapResultSetToLoan(resultSet));
-            }
-
-            // Log the number of active loans fetched and return the list of loans
-            logger.info("Fetched {} active loans", loans.size());
-            return loans;
-        } catch (SQLException e) {
-
-            // Log the error and throw a new runtime exception
-            logger.error("Error while fetching active loans", e);
-            throw new RuntimeException("Failed to fetch active loans", e);
-        }
-    }
-
-    /**
      * Helper method to map a result set to a Loan object.
      *
      * @param resultSet the result set to map

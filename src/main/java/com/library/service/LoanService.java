@@ -2,7 +2,6 @@ package com.library.service;
 
 import com.library.model.Loan;
 
-
 import java.util.List;
 
 /**
@@ -53,11 +52,4 @@ public interface LoanService {
      * @return a list of loans associated with the user
      */
     List<Loan> getLoansByUserId(int userId);
-
-    /**
-     * Retrieves all active loans (loans that have not been returned).
-     *
-     * @return a list of active loans
-     */
-    List<Loan> getActiveLoans();
 }

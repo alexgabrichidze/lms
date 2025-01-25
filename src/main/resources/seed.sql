@@ -14,5 +14,5 @@ INSERT INTO users (name, email, role) VALUES
 
 -- Insert sample loans
 INSERT INTO loans (user_id, book_id, loan_date, return_date) VALUES
-(1, 3, '2025-01-01', NULL), -- Alice borrowed 'To Kill a Mockingbird'
-(2, 1, '2024-12-15', '2024-12-22'); -- Bob borrowed 'The Great Gatsby' and returned it
+(1, 3, '2025-01-01', '2027-04-25'), -- Alice borrowed 'To Kill a Mockingbird'
+(2, 1, '2024-12-15', '2026-12-22'); -- Bob borrowed 'The Great Gatsby' and returned it

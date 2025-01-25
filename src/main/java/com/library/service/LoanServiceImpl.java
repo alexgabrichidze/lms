@@ -259,29 +259,4 @@ public class LoanServiceImpl implements LoanService {
         logger.info("Successfully fetched {} loans for user ID: {}", loans.size(), userId);
         return loans;
     }
-
-    /**
-     * Retrieves all active loans (loans that have not been returned).
-     *
-     * @return a list of active loans
-     */
-    @Override
-    public List<Loan> getActiveLoans() {
-
-        // Log the loan retrieval attempt
-        logger.info("Fetching active loans.");
-
-        // Fetch active loans
-        List<Loan> loans = loanDao.getActiveLoans();
-
-        // Check if nothing has been found
-        if (loans.isEmpty()) {
-            logger.warn("No loans found.");
-            throw new LoanNotFoundException("No loans found.");
-        }
-
-        // Log the success and return the list
-        logger.info("Successfully fetched {} active loans.", loans.size());
-        return loans;
-    }
 }
