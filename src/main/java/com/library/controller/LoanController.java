@@ -20,7 +20,6 @@ import static com.library.util.ValidationUtil.*;
 import java.io.IOException;
 
 public class LoanController extends BaseController {
-
     // Logger instance
     private static final Logger logger = LoggerFactory.getLogger(LoanController.class);
 
@@ -47,12 +46,12 @@ public class LoanController extends BaseController {
      */
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        // Extract the request method, path, and query
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
         String query = exchange.getRequestURI().getQuery();
 
         try {
-
             // Log the incoming request
             logger.info("Received {} request for path: {}", method, path);
 
@@ -69,35 +68,29 @@ public class LoanController extends BaseController {
 
                 handleLoanEndpoint(exchange, method, id);
             } else {
-
                 // Handle path not found errors
                 sendResponse(exchange, 404, "Not found.");
                 logger.warn("Path not found: {}", path);
             }
 
         } catch (LoanNotFoundException e) {
-
             // Handle loan not found errors
             logger.error("Loan not found. {}", e.getMessage(), e);
             sendResponse(exchange, 404, e.getMessage()); // Handle loan not found errors
         } catch (InvalidLoanException e) {
-
             // Handle invalid loan data errors
             logger.error("Invalid loan data. {}", e.getMessage(), e);
             sendResponse(exchange, 400, e.getMessage()); // Handle invalid loan data errors
         } catch (IllegalArgumentException e) {
-
             // Handle invalid input errors
             logger.error("Invalid input. {}", e.getMessage(), e);
             sendResponse(exchange, 400, "Invalid input: " + e.getMessage()); // Handle invalid input errors
         } catch (LoanConflictException e) {
-
             // Handle loan conflict errors
             logger.error("Loan conflict. {}", e.getMessage(),
                     e);
             sendResponse(exchange, 409, e.getMessage()); // Handle loan conflict errors
         } catch (Exception e) {
-
             // Handle unexpected errors
             logger.error("Internal server error. {}", e.getMessage(), e);
             sendResponse(exchange, 500, "Internal server error. " + e.getMessage()); // Handle unexpected errors
@@ -115,7 +108,6 @@ public class LoanController extends BaseController {
     private void handleLoansEndpoint(HttpExchange exchange, String method) throws IOException {
         switch (method) {
             case "GET":
-
                 // Retrieve all loans from the service
                 List<Loan> loans = loanService.getAllLoans();
 
@@ -145,7 +137,6 @@ public class LoanController extends BaseController {
                 if (loan.getReturnDate() == null) {
                     throw new InvalidLoanException("Return date of the loan cannot be null.");
                 }
-
                 // Create the new loan
                 loanService.createLoan(loan);
 
@@ -157,7 +148,6 @@ public class LoanController extends BaseController {
                 break;
 
             default:
-
                 // Handle unsupported HTTP methods
                 sendResponse(exchange, 405, "Method not allowed.");
                 logger.warn("Method not allowed: {}", method);
@@ -173,12 +163,10 @@ public class LoanController extends BaseController {
      * @throws IOException If an I/O error occurs while handling the request.
      */
     private void handleSearchLoans(HttpExchange exchange, String query) throws IOException {
-
         // Parse the query parameters into a map
         Map<String, String> queryParams = parseQueryParameters(query);
 
         if (queryParams.containsKey("userId")) {
-
             // Parse the user ID from the query parameters
             Integer userId = Integer.parseInt(queryParams.get("userId"));
 
@@ -192,7 +180,6 @@ public class LoanController extends BaseController {
             sendResponse(exchange, 200, objectMapper.writeValueAsString(loans));
             logger.info("Successfully searched loans by user ID: {}", userId);
         } else {
-
             // Handle invalid search parameters
             sendResponse(exchange, 400, "Invalid search parameter");
             logger.warn("Invalid search parameter: {}", query);
@@ -202,7 +189,6 @@ public class LoanController extends BaseController {
     private void handleLoanEndpoint(HttpExchange exchange, String method, int id) throws IOException {
         switch (method) {
             case "GET":
-
                 // Retrieve the loan by ID from the service
                 Loan loan = loanService.getLoanById(id);
 
@@ -210,8 +196,8 @@ public class LoanController extends BaseController {
                 sendResponse(exchange, 200, objectMapper.writeValueAsString(loan));
                 logger.info("Successfully retrieved loan with ID: {}", id);
                 break;
-            case "PATCH":
 
+            case "PATCH":
                 // Parse the request body into a Loan object
                 Loan updatedLoan = parseRequestBody(exchange, Loan.class);
 
@@ -225,6 +211,7 @@ public class LoanController extends BaseController {
                 sendResponse(exchange, 200, "Loan updated successfully");
                 logger.info("Successfully updated loan with ID: {}", id);
                 break;
+
             case "DELETE":
                 // Delete the loan by ID
                 loanService.deleteLoan(id);

@@ -296,47 +296,10 @@ public class BookController extends BaseController {
     private void handleBookStatusEndpoint(HttpExchange exchange, String method, int id)
             throws IOException {
 
-        if (method.equals("PATCH")) {
-
-            // Parse the request body into a JsonNode
-            JsonNode jsonNode = objectMapper.readTree(exchange.getRequestBody());
-
-            // Check if the "status" field exists and is not null
-            if (!jsonNode.has("status")) {
-                sendResponse(exchange, 400, "Missing required field: status");
-                logger.warn("Missing required field: status");
-                return;
-            }
-
-            // Extract the "status" field from the request body
-            JsonNode statusNode = jsonNode.get("status");
-
-            // Check if the "status" field is null
-            if (statusNode.isNull()) {
-                sendResponse(exchange, 400, "Status cannot be null");
-                logger.warn("Status cannot be null");
-                return;
-            }
-
-            // Check if the "status" field is a valid text value
-            if (!statusNode.isTextual()) {
-                sendResponse(exchange, 400, "Status must be a string");
-                logger.warn("Status must be a string");
-                return;
-            }
-
-            // Extract the "status" field as a String
-            String status = statusNode.asText();
-
-            // Validate that the status is not empty
-            if (status.isEmpty()) {
-                sendResponse(exchange, 400, "Status cannot be empty");
-                logger.warn("Status cannot be empty");
-                return;
-            }
-
             // Validate the status before updating
             try {
+
+                // TODO: Implement the logic to parse the status field from the request body and validate it using Jackson
                 // Update the book status in the service
                 BookStatus bookStatus = BookStatus.valueOf(status);
 
