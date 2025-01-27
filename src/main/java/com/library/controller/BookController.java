@@ -22,7 +22,6 @@ import java.util.Map;
  * operations and search functionality.
  */
 public class BookController extends BaseController {
-
     // Logger instance
     private static final Logger logger = LoggerFactory.getLogger(BookController.class);
 
@@ -59,50 +58,50 @@ public class BookController extends BaseController {
             // Route the request based on the path
             if (path.matches("/books")) {
                 if (query != null) {
-                    handleSearchBooks(exchange, query, method); // Handle search functionality
+
+                    // Handle search functionality
+                    handleSearchBooks(exchange, query, method);
                 } else {
-                    handleBooksEndpoint(exchange, method); // Handle /books endpoint
+
+                    // Handle /books endpoint
+                    handleBooksEndpoint(exchange, method);
                 }
             } else if (path.matches("/books/\\d+")) {
                 int id = extractIdFromPath(path);
-
-                // Validate the ID is a positive integer
                 validatePositiveId(id, "Book ID",
                         () -> new InvalidBookException("Book ID must be a positive integer."));
-                handleBookEndpoint(exchange, method, id); // Handle /books/{id} endpoint
+
+                // Handle /books/{id} endpoint
+                handleBookEndpoint(exchange, method, id);
             } else if (path.matches("/books/\\d+/status")) {
                 int id = extractIdFromPath(path);
-
-                // Validate the ID is a positive integer
                 validatePositiveId(id, "Book ID",
                         () -> new InvalidBookException("Book ID must be a positive integer."));
-                handleBookStatusEndpoint(exchange, method, id); // Handle /books/{id}/status endpoint
+
+                // Handle /books/{id}/status endpoint
+                handleBookStatusEndpoint(exchange, method, id);
             } else {
 
                 // Handle unknown paths
-                sendResponse(exchange, 404, "Not Found"); // Handle unknown paths
+                sendResponse(exchange, 404, "Not Found");
                 logger.warn("Path not found: {}", path);
             }
         } catch (BookNotFoundException e) {
-
             // Handle book not found errors
             logger.error("Book not found. {}", e.getMessage(), e);
-            sendResponse(exchange, 404, e.getMessage()); // Handle book not found errors
+            sendResponse(exchange, 404, e.getMessage());
         } catch (InvalidBookException e) {
-
             // Handle invalid book data errors
             logger.error("Invalid book data. {}", e.getMessage(), e);
-            sendResponse(exchange, 400, e.getMessage()); // Handle invalid book data errors
+            sendResponse(exchange, 400, e.getMessage());
         } catch (IllegalArgumentException e) {
-
             // Handle invalid input errors
             logger.error("Invalid input. {}", e.getMessage(), e);
-            sendResponse(exchange, 400, "Invalid input: " + e.getMessage()); // Handle invalid input errors
+            sendResponse(exchange, 400, "Invalid input: " + e.getMessage());
         } catch (Exception e) {
-
             // Handle unexpected errors
             logger.error("Internal server error. {}", e.getMessage(), e);
-            sendResponse(exchange, 500, "Internal server error. " + e.getMessage()); // Handle unexpected errors
+            sendResponse(exchange, 500, "Internal server error. " + e.getMessage());
         }
     }
 
@@ -143,13 +142,12 @@ public class BookController extends BaseController {
                     throw new InvalidBookException("Published date cannot be null.");
                 }
 
-                // Add the new book to the service
+                // Create new book
                 bookService.addBook(book);
 
-                // Send a success response
+                // Send success response and log success
                 sendResponse(exchange, 201, "Book added successfully");
 
-                // Log the successful addition of the new book
                 logger.info("Successfully added book with ID: {}", book.getId());
                 break;
             default:
@@ -173,16 +171,14 @@ public class BookController extends BaseController {
             throws IOException {
         switch (method) {
             case "GET":
-
                 // Retrieve the book by ID from the service
                 Book book = bookService.getBookById(id);
 
-                // Send the book details as JSON and log the success
+                // Send success response and log success
                 sendResponse(exchange, 200, objectMapper.writeValueAsString(book));
                 logger.info("Successfully retrieved book with ID: {}", id);
                 break;
             case "PATCH":
-
                 // Parse the request body into a Book object
                 Book updatedBook = parseRequestBody(exchange, Book.class);
 
@@ -192,21 +188,19 @@ public class BookController extends BaseController {
                 // Update the book in the service
                 bookService.updateBook(updatedBook);
 
-                // Send a success response and log it
+                // Send success response and log success
                 sendResponse(exchange, 200, "Book updated successfully");
                 logger.info("Successfully updated book with ID: {}", id);
                 break;
             case "DELETE":
-
                 // Delete the book by ID from the service
                 bookService.deleteBook(id);
 
-                // Send a success response and log it
+                // Send success response and log success
                 sendResponse(exchange, 204, "");
                 logger.info("Successfully deleted book with ID: {}", id);
                 break;
             default:
-
                 // Handle unsupported HTTP methods
                 sendResponse(exchange, 405, "Method Not Allowed");
                 logger.warn("Method not allowed for book endpoint: {}", method);
@@ -233,8 +227,8 @@ public class BookController extends BaseController {
         // Parse the query parameters into a map
         Map<String, String> queryParams = parseQueryParameters(query);
 
+        // Handle search by title, author, or ISBN
         if (queryParams.containsKey("title")) {
-
             // Search books by title
             String title = queryParams.get("title");
 
@@ -244,11 +238,10 @@ public class BookController extends BaseController {
             // Retrieve the list of books by title from the service
             List<Book> books = bookService.getBooksByTitle(title);
 
-            // Send the list of books as JSON and log the success
+            // Send success response and log success
             sendResponse(exchange, 200, objectMapper.writeValueAsString(books));
             logger.info("Successfully searched books by title: {}", title);
         } else if (queryParams.containsKey("author")) {
-
             // Search books by author
             String author = queryParams.get("author");
 
@@ -258,11 +251,10 @@ public class BookController extends BaseController {
             // Retrieve the list of books by author from the service
             List<Book> books = bookService.getBooksByAuthor(author);
 
-            // Send the list of books as JSON and log the success
+            // Send success response and log success
             sendResponse(exchange, 200, objectMapper.writeValueAsString(books));
             logger.info("Successfully searched books by author: {}", author);
         } else if (queryParams.containsKey("isbn")) {
-
             // Search books by ISBN
             String isbn = queryParams.get("isbn");
 
@@ -276,7 +268,6 @@ public class BookController extends BaseController {
             sendResponse(exchange, 200, objectMapper.writeValueAsString(book));
             logger.info("Successfully searched book by ISBN: {}", isbn);
         } else {
-
             // Handle invalid search parameters
             sendResponse(exchange, 400, "Invalid search parameter");
             logger.warn("Invalid search parameter: {}", query);
@@ -316,7 +307,7 @@ public class BookController extends BaseController {
         // Update the book status in the service
         bookService.updateBookStatus(id, bookStatus);
 
-        // Send a success response and log it
+        // Send success response and log success
         sendResponse(exchange, 200, "Book status updated successfully");
         logger.info("Successfully updated status for book with ID: {}", id);
     }
