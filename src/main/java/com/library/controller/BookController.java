@@ -302,7 +302,13 @@ public class BookController extends BaseController {
         }
 
         // Convert the status to a BookStatus enum type
-        BookStatus bookStatus = BookStatus.valueOf(statusNode.asText().toUpperCase());
+        BookStatus bookStatus;
+
+        try {
+            bookStatus = BookStatus.valueOf(statusNode.asText().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid status value. Allowed values are AVAILABLE or BORROWED.");
+        }
 
         // Update the book status in the service
         bookService.updateBookStatus(id, bookStatus);

@@ -102,10 +102,8 @@ public class UserController extends BaseController {
                 // Retrieve all users from the service
                 List<User> users = userService.getAllUsers();
 
-                // Send the list of users as JSON
+                // Send success response and log success
                 sendResponse(exchange, 200, objectMapper.writeValueAsString(users));
-
-                // Log the successful retrieval of all users
                 logger.info("Successfully retrieved all users");
                 break;
             case "POST":
@@ -121,7 +119,7 @@ public class UserController extends BaseController {
                 // Create user
                 userService.createUser(user);
 
-                // Send a success response and log success
+                // Send success response and log success
                 sendResponse(exchange, 201, "User created successfully");
                 logger.info("Successfully created user with ID: {}", user.getId());
                 break;
@@ -147,7 +145,7 @@ public class UserController extends BaseController {
                 // Retrieve the user by ID from the service
                 User user = userService.getUserById(id);
 
-                // Send the user details as JSON and log the success
+                // Send success response and log success
                 sendResponse(exchange, 200, objectMapper.writeValueAsString(user));
                 logger.info("Successfully retrieved user with ID: {}", id);
                 break;
@@ -209,7 +207,7 @@ public class UserController extends BaseController {
             // Retrieve the user by email from the service
             User user = userService.getUserByEmail(email);
 
-            // Send the user details as JSON and log the success
+            // Send success response and log success
             sendResponse(exchange, 200, objectMapper.writeValueAsString(user));
             logger.info("Successfully searched user by email: {}", email);
         } else {
