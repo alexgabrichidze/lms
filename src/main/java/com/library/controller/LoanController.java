@@ -220,6 +220,10 @@ public class LoanController extends BaseController {
                 sendResponse(exchange, 204, "");
                 logger.info("Successfully deleted loan with ID: {}", id);
                 break;
+            default:
+                // Handle unsupported HTTP methods
+                sendResponse(exchange, 405, "Method not allowed.");
+                logger.warn("Method not allowed: {}", method);
         }
     }
 }
