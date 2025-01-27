@@ -4,7 +4,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 import com.library.service.LoanService;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.library.model.Loan;
 
 import java.util.List;
@@ -33,7 +32,6 @@ public class LoanController extends BaseController {
      */
     public LoanController(LoanService loanService) {
         this.loanService = loanService;
-        objectMapper.registerModule(new JavaTimeModule()); // Register JavaTimeModule for date serialization
     }
 
     /**

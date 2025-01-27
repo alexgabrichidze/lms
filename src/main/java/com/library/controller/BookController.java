@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import static com.library.util.ValidationUtil.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,7 +36,6 @@ public class BookController extends BaseController {
      */
     public BookController(BookService bookService) {
         this.bookService = bookService;
-        objectMapper.registerModule(new JavaTimeModule());
     }
 
     /**

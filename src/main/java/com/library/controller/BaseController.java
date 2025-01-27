@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -17,6 +18,11 @@ public abstract class BaseController implements HttpHandler {
 
     // Jackson ObjectMapper for JSON serialization/deserialization
     protected final ObjectMapper objectMapper = new ObjectMapper();
+
+    // Initialization block to register the JavaTimeModule
+    {
+        objectMapper.registerModule(new JavaTimeModule());
+    }
 
     /**
      * Sends an HTTP response with the given status code and response body.
