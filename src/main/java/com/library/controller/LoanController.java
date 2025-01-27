@@ -33,7 +33,7 @@ public class LoanController extends BaseController {
      */
     public LoanController(LoanService loanService) {
         this.loanService = loanService;
-        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.registerModule(new JavaTimeModule()); // Register JavaTimeModule for date serialization
     }
 
     /**
@@ -57,15 +57,13 @@ public class LoanController extends BaseController {
 
             if (path.matches("/loans")) {
                 if (query != null) {
-                    handleSearchLoans(exchange, query);
+                    handleSearchLoans(exchange, query, method);
                 } else {
                     handleLoansEndpoint(exchange, method);
                 }
             } else if (path.matches("/loans/\\d+")) {
                 int id = extractIdFromPath(path);
-
                 validatePositiveId(id, "Loan ID", () -> new InvalidLoanException("Invalid loan ID"));
-
                 handleLoanEndpoint(exchange, method, id);
             } else {
                 // Handle path not found errors
@@ -111,10 +109,8 @@ public class LoanController extends BaseController {
                 // Retrieve all loans from the service
                 List<Loan> loans = loanService.getAllLoans();
 
-                // Send the list of loans as JSON
+                // Send success reponse and log success
                 sendResponse(exchange, 200, objectMapper.writeValueAsString(loans));
-
-                // Log the successful retrieval of all loans
                 logger.info("Successfully retrieved all loans");
                 break;
 
@@ -162,7 +158,14 @@ public class LoanController extends BaseController {
      * @param query    The query parameters of the request.
      * @throws IOException If an I/O error occurs while handling the request.
      */
-    private void handleSearchLoans(HttpExchange exchange, String query) throws IOException {
+    private void handleSearchLoans(HttpExchange exchange, String query, String method) throws IOException {
+        // Handle unsupported HTTP methods
+        if (!method.equals("GET")) {
+            sendResponse(exchange, 405, "Method Not Allowed");
+            logger.warn("Method not allowed for search books endpoint: {}", method);
+            return;
+        }
+
         // Parse the query parameters into a map
         Map<String, String> queryParams = parseQueryParameters(query);
 
@@ -196,7 +199,6 @@ public class LoanController extends BaseController {
                 sendResponse(exchange, 200, objectMapper.writeValueAsString(loan));
                 logger.info("Successfully retrieved loan with ID: {}", id);
                 break;
-
             case "PATCH":
                 // Parse the request body into a Loan object
                 Loan updatedLoan = parseRequestBody(exchange, Loan.class);
@@ -211,7 +213,6 @@ public class LoanController extends BaseController {
                 sendResponse(exchange, 200, "Loan updated successfully");
                 logger.info("Successfully updated loan with ID: {}", id);
                 break;
-
             case "DELETE":
                 // Delete the loan by ID
                 loanService.deleteLoan(id);
