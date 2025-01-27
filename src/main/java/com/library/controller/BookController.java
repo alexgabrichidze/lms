@@ -55,26 +55,25 @@ public class BookController extends BaseController {
         String query = exchange.getRequestURI().getQuery(); // Get the query parameters (e.g., title=1984)
 
         try {
-
             // Log the incoming request
             logger.info("Received {} request for path: {}", method, path);
 
             // Route the request based on the path
             if (path.matches("/books")) {
                 if (query != null) {
-                    handleSearchBooks(exchange, query); // Handle search functionality
+                    handleSearchBooks(exchange, query, method); // Handle search functionality
                 } else {
                     handleBooksEndpoint(exchange, method); // Handle /books endpoint
                 }
             } else if (path.matches("/books/\\d+")) {
-                int id = extractIdFromPath(path); // Extract the book ID from the path
+                int id = extractIdFromPath(path);
 
                 // Validate the ID is a positive integer
                 validatePositiveId(id, "Book ID",
                         () -> new InvalidBookException("Book ID must be a positive integer."));
                 handleBookEndpoint(exchange, method, id); // Handle /books/{id} endpoint
             } else if (path.matches("/books/\\d+/status")) {
-                int id = extractIdFromPath(path); // Extract the book ID from the path
+                int id = extractIdFromPath(path);
 
                 // Validate the ID is a positive integer
                 validatePositiveId(id, "Book ID",
@@ -121,7 +120,6 @@ public class BookController extends BaseController {
     private void handleBooksEndpoint(HttpExchange exchange, String method) throws IOException {
         switch (method) {
             case "GET":
-
                 // Retrieve all books from the service
                 List<Book> books = bookService.getAllBooks();
 
@@ -132,7 +130,6 @@ public class BookController extends BaseController {
                 logger.info("Successfully retrieved all books");
                 break;
             case "POST":
-
                 // Parse the request body into a Book object
                 Book book = parseRequestBody(exchange, Book.class);
 
@@ -158,7 +155,6 @@ public class BookController extends BaseController {
                 logger.info("Successfully added book with ID: {}", book.getId());
                 break;
             default:
-
                 // Handle unsupported HTTP methods
                 sendResponse(exchange, 405, "Method Not Allowed");
                 logger.warn("Method not allowed for /books endpoint: {}", method);
@@ -228,7 +224,13 @@ public class BookController extends BaseController {
      * @throws IOException If an I/O error occurs while handling the
      *                     request.
      */
-    private void handleSearchBooks(HttpExchange exchange, String query) throws IOException {
+    private void handleSearchBooks(HttpExchange exchange, String query, String method) throws IOException {
+        // Handle unsupported HTTP methods
+        if (!method.equals("GET")) {
+            sendResponse(exchange, 405, "Method Not Allowed");
+            logger.warn("Method not allowed for search books endpoint: {}", method);
+            return;
+        }
 
         // Parse the query parameters into a map
         Map<String, String> queryParams = parseQueryParameters(query);
@@ -295,28 +297,29 @@ public class BookController extends BaseController {
      */
     private void handleBookStatusEndpoint(HttpExchange exchange, String method, int id)
             throws IOException {
-        if (method.equals("PATCH")) {
-            // Parse the request's status field into a JsonNode
-            JsonNode statusNode = parseRequestBody(exchange, JsonNode.class).get("status");
-
-            // Validate the "status" field exists and is not empty
-            if (statusNode == null || statusNode.isNull() || statusNode.asText().isEmpty()) {
-                throw new IllegalArgumentException("Status field is required.");
-            }
-
-            // Convert the status to a BookStatus enum type
-            BookStatus bookStatus = BookStatus.valueOf(statusNode.asText().toUpperCase());
-
-            // Update the book status in the service
-            bookService.updateBookStatus(id, bookStatus);
-
-            // Send a success response and log it
-            sendResponse(exchange, 200, "Book status updated successfully");
-            logger.info("Successfully updated status for book with ID: {}", id);
-        } else {
-            // Handle unsupported HTTP methods
+        // Handle unsupported HTTP methods
+        if (!method.equals("PATCH")) {
             sendResponse(exchange, 405, "Method Not Allowed");
-            logger.warn("Method not allowed for book status endpoint: {}", method);
+            logger.warn("Method not allowed for search books endpoint: {}", method);
+            return;
         }
+
+        // Parse the request's status field into a JsonNode
+        JsonNode statusNode = parseRequestBody(exchange, JsonNode.class).get("status");
+
+        // Validate the "status" field exists and is not empty
+        if (statusNode == null || statusNode.isNull() || statusNode.asText().isEmpty()) {
+            throw new IllegalArgumentException("Status field is required.");
+        }
+
+        // Convert the status to a BookStatus enum type
+        BookStatus bookStatus = BookStatus.valueOf(statusNode.asText().toUpperCase());
+
+        // Update the book status in the service
+        bookService.updateBookStatus(id, bookStatus);
+
+        // Send a success response and log it
+        sendResponse(exchange, 200, "Book status updated successfully");
+        logger.info("Successfully updated status for book with ID: {}", id);
     }
 }
