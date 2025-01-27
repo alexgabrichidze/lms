@@ -295,25 +295,24 @@ public class BookController extends BaseController {
      */
     private void handleBookStatusEndpoint(HttpExchange exchange, String method, int id)
             throws IOException {
+        if (method.equals("PATCH")) {
+            // Parse the request's status field into a JsonNode
+            JsonNode statusNode = parseRequestBody(exchange, JsonNode.class).get("status");
 
-            // Validate the status before updating
-            try {
-
-                // TODO: Implement the logic to parse the status field from the request body and validate it using Jackson
-                // Update the book status in the service
-                BookStatus bookStatus = BookStatus.valueOf(status);
-
-                // Update the book status in the service
-                bookService.updateBookStatus(id, bookStatus);
-
-                // Send a success response and log it
-                sendResponse(exchange, 200, "Book status updated successfully");
-                logger.info("Successfully updated status for book with ID: {}", id);
-            } catch (IllegalArgumentException e) {
-                // Handle invalid status values
-                sendResponse(exchange, 400, "Invalid book status: " + status);
-                logger.warn("Invalid book status: {}", status);
+            // Validate the "status" field exists and is not empty
+            if (statusNode == null || statusNode.isNull() || statusNode.asText().isEmpty()) {
+                throw new IllegalArgumentException("Status field is required.");
             }
+
+            // Convert the status to a BookStatus enum type
+            BookStatus bookStatus = BookStatus.valueOf(statusNode.asText().toUpperCase());
+
+            // Update the book status in the service
+            bookService.updateBookStatus(id, bookStatus);
+
+            // Send a success response and log it
+            sendResponse(exchange, 200, "Book status updated successfully");
+            logger.info("Successfully updated status for book with ID: {}", id);
         } else {
             // Handle unsupported HTTP methods
             sendResponse(exchange, 405, "Method Not Allowed");
