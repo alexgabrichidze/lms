@@ -66,7 +66,7 @@ public class BookDaoImpl implements BookDao {
      */
     @Override
     public Book getBookById(int id) {
-        String sql = "SELECT id, title, author, isbn, published_date, status FROM books WHERE id = ?";
+        String sql = "SELECT * FROM books WHERE id = ?";
 
         // Log the book being fetched
         logger.info("Fetching book with ID: {}", id);
@@ -104,36 +104,42 @@ public class BookDaoImpl implements BookDao {
     /**
      * Retrieves all books from the books table.
      *
+     * @param offset the number of books to skip
+     * @param limit  the maximum number of books to retrieve
      * @return a list of all Book objects, or an empty list if no books are found
      */
     @Override
-    public List<Book> getAllBooks() {
+    public List<Book> getAllBooks(int offset, int limit) {
         List<Book> books = new ArrayList<>();
-        String sql = "SELECT id, title, author, isbn, published_date, status FROM books";
+        String sql = "SELECT * FROM books ORDER BY id LIMIT ? OFFSET ?";
 
         // Log the books being fetched
         logger.info("Fetching all books.");
 
         try (Connection connection = ConnectionManager.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql);
+                PreparedStatement statement = connection.prepareStatement(sql)) {
 
-                // Execute the query and get the result set
-                ResultSet resultSet = statement.executeQuery()) {
+            // Set the values of the prepared statement
+            statement.setInt(1, limit);
+            statement.setInt(2, offset);
+
+            // Execute the query and get the result set
+            ResultSet resultSet = statement.executeQuery();
 
             // Iterate over the result set and add each book to the list
             while (resultSet.next()) {
-
                 // Call the helper method to map the result set to a Book object
                 books.add(mapResultSetToBook(resultSet));
             }
-            logger.info("Successfully fetched {} books.", books.size()); // Log the success message
-        } catch (SQLException e) {
 
-            // Log the error message and throw a runtime exception
+            // Log success and return
+            logger.info("Successfully fetched {} books.", books.size());
+            return books;
+        } catch (SQLException e) {
+            // Log error and throw runtime exception
             logger.error("Error while fetching all books");
             throw new RuntimeException("Failed to fetch books.", e);
         }
-        return books; // Return the list of books
     }
 
     /**
@@ -187,7 +193,7 @@ public class BookDaoImpl implements BookDao {
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            // Set the value of the prepared statement
+            // Set values of prepared statement
             statement.setInt(1, id);
 
             // Execute the statement and log the success message
@@ -204,23 +210,27 @@ public class BookDaoImpl implements BookDao {
     /**
      * Retrieves books by their title from the books table.
      *
-     * @param title the title to search for (case-insensitive, partial matches
-     *              allowed)
+     * @param title  the title to search for (case-insensitive, partial matches
+     *               allowed)
+     * @param offset the number of books to skip
+     * @param limit  the maximum number of books to retrieve
      * @return a list of books matching the title
      */
     @Override
-    public List<Book> getBooksByTitle(String title) {
+    public List<Book> getBooksByTitle(String title, int offset, int limit) {
         List<Book> books = new ArrayList<>();
-        String sql = "SELECT id, title, author, isbn, published_date, status FROM books WHERE LOWER(title) LIKE ?";
+        String sql = "SELECT * FROM books WHERE LOWER(title) LIKE ? ORDER BY id LIMIT ? OFFSET ?";
+
+        // Log the books being fetched
+        logger.info("Fetching books with title matching: {}", title);
 
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            // Log the books being fetched
-            logger.info("Fetching books with title matching: {}", title);
-
-            // Set the value of the prepared statement
+            // Set values of prepared statement
             statement.setString(1, "%" + title.toLowerCase() + "%");
+            statement.setInt(2, limit);
+            statement.setInt(3, offset);
             ResultSet resultSet = statement.executeQuery();
 
             // Iterate over the result set and add each book to the list
@@ -229,15 +239,14 @@ public class BookDaoImpl implements BookDao {
                                                           // object
             }
 
-            // Log the success message
+            // Log success and return
             logger.info("Successfully fetched {} book(s) matching title: {}", books.size(), title);
+            return books;
         } catch (SQLException e) {
-
-            // Log the error message and throw a runtime exception
+            // Log error and throw runtime exception
             logger.error("Error while fetching books with title: {}", title);
             throw new RuntimeException("Failed to fetch books by title.", e);
         }
-        return books; // Return the list of books
     }
 
     /**
@@ -245,23 +254,25 @@ public class BookDaoImpl implements BookDao {
      *
      * @param author the author to search for (case-insensitive, partial matches
      *               allowed)
+     * @param offset the number of books to skip
+     * @param limit  the maximum number of books to retrieve
      * @return a list of books matching the author
      */
     @Override
-    public List<Book> getBooksByAuthor(String author) {
+    public List<Book> getBooksByAuthor(String author, int offset, int limit) {
         List<Book> books = new ArrayList<>();
-        String sql = "SELECT id, title, author, isbn, published_date, status FROM books WHERE LOWER(author) LIKE ?";
+        String sql = "SELECT * FROM books WHERE LOWER(author) LIKE ? ORDER BY id LIMIT ? OFFSET ?";
+
+        // Log the books being fetched
+        logger.info("Fetching books with author matching: {}", author);
 
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            // Log the books being fetched
-            logger.info("Fetching books with author matching: {}", author);
-
-            // Set the value of the prepared statement
+            // Set values of prepared statement and execute statement
             statement.setString(1, "%" + author.toLowerCase() + "%");
-
-            // Execute the query and get the result set
+            statement.setInt(2, limit);
+            statement.setInt(3, offset);
             ResultSet resultSet = statement.executeQuery();
 
             // Iterate over the result set and add each book to the list
@@ -270,15 +281,14 @@ public class BookDaoImpl implements BookDao {
                                                           // object
             }
 
-            // Log the success message
+            // Log success and return
             logger.info("Successfully fetched {} book(s) by author: {}", books.size(), author);
+            return books;
         } catch (SQLException e) {
-
-            // Log the error message and throw a runtime exception
+            // Log error and throw runtime exception
             logger.error("Error while fetching books by author: {}", author);
             throw new RuntimeException("Failed to fetch books by author.", e);
         }
-        return books; // Return the list of books
     }
 
     /**
@@ -290,7 +300,7 @@ public class BookDaoImpl implements BookDao {
      */
     @Override
     public Book getBookByIsbn(String isbn) {
-        String sql = "SELECT id, title, author, isbn, published_date, status FROM books WHERE isbn = ?";
+        String sql = "SELECT * FROM books WHERE isbn = ?";
 
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
