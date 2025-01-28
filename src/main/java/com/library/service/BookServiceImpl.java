@@ -105,16 +105,21 @@ public class BookServiceImpl implements BookService {
     /**
      * Retrieves all books in the library.
      *
+     * @param page the page number (zero-based)
+     * @param size the number of books per page
      * @return a list of all Book objects
      */
     @Override
-    public List<Book> getAllBooks() {
+    public List<Book> getAllBooks(int page, int size) {
 
         // Log the fetch operation
-        logger.info("Fetching all books.");
+        logger.info("Fetching all books for page {} with size {}", page, size);
+
+        // Calculate the offset
+        int offset = page * size;
 
         // Fetch all books
-        List<Book> books = bookDao.getAllBooks();
+        List<Book> books = bookDao.getAllBooks(offset, size);
 
         // Log the count of books fetched and return the list
         logger.info("Successfully fetched {} books.", books.size());
@@ -213,15 +218,21 @@ public class BookServiceImpl implements BookService {
      *
      * @param title the title to search for (case-insensitive, partial matches
      *              allowed)
+     * @param page  the page number (zero-based)
+     * @param size  the number of books per page
      * @return a list of books matching the title
      */
     @Override
-    public List<Book> getBooksByTitle(String title) {
+    public List<Book> getBooksByTitle(String title, int page, int size) {
 
         // Log the fetch attempt
-        logger.info("Fetching books with title: {}", title);
+        logger.info("Fetching books by title {} for page {} with size {}", title, page, size);
 
-        List<Book> books = bookDao.getBooksByTitle(title); // Fetch books by title
+        // Calculate the offset
+        int offset = page * size;
+
+        // Fetch books by title
+        List<Book> books = bookDao.getBooksByTitle(title, offset, size);
 
         // If no books are found, log a warning and return an empty list
         if (books.isEmpty()) {
@@ -229,7 +240,7 @@ public class BookServiceImpl implements BookService {
             throw new BookNotFoundException("No books found for title: " + title);
         }
 
-        // Log the success and return the list
+        // Log success and return
         logger.info("Successfully fetched {} book(s) matching title: {}", books.size(), title);
         return books;
     }
@@ -239,15 +250,21 @@ public class BookServiceImpl implements BookService {
      *
      * @param author the author to search for (case-insensitive, partial matches
      *               allowed)
+     * @param page   the page number (zero-based)
+     * @param size   the number of books per page
      * @return a list of books matching the author
      */
     @Override
-    public List<Book> getBooksByAuthor(String author) {
+    public List<Book> getBooksByAuthor(String author, int page, int size) {
 
         // Log the fetch attempt
-        logger.info("Fetching books with author: {}", author);
+        logger.info("Fetching books by author {} for page {} with size {}", author, page, size);
 
-        List<Book> books = bookDao.getBooksByAuthor(author); // Fetch books by author
+        // Calculate the offset
+        int offset = page * size;
+
+        // Fetch books by author
+        List<Book> books = bookDao.getBooksByAuthor(author, offset, size);
 
         // If no books are found, log a warning and return an empty list
         if (books.isEmpty()) {
@@ -255,7 +272,7 @@ public class BookServiceImpl implements BookService {
             throw new BookNotFoundException("No books found for author: " + author);
         }
 
-        // Log the success and return the list
+        // Log success and return
         logger.info("Successfully fetched {} book(s) by author: {}", books.size(), author);
         return books;
     }
