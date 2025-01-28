@@ -10,26 +10,51 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
+
+    // Logger
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
+    // Configurable pool size
+    private static final int THREAD_POOL_SIZE = 10;
+
     public static void main(String[] args) {
+        final ExecutorService executor;
+        final HttpServer server;
+        AppContainer container;
+
         try {
             // Initialize container with all dependencies
-            AppContainer container = new AppContainer();
+            container = new AppContainer();
 
             // Create server with controllers from container
-            HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+            server = HttpServer.create(new InetSocketAddress(8080), 0);
+
+            // Configure thread pool
+            executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+            server.setExecutor(executor);
+
+            // Set up endpoints
             server.createContext("/books", container.bookController());
             server.createContext("/users", container.userController());
             server.createContext("/loans", container.loanController());
 
             server.start();
-            logger.info("Server started on port 8080");
+            logger.info("Server started on port 8080 with {} threads", THREAD_POOL_SIZE);
+
+            // Add shutdown hook for graceful termination
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                logger.info("Initiating graceful shutdown...");
+                server.stop(0);
+                executor.shutdownNow();
+                logger.info("Application shutdown completed.");
+            }));
 
         } catch (IOException e) {
-            logger.error("Failed to start server: ", e);
+            logger.error("Server error: ", e);
         }
     }
 
