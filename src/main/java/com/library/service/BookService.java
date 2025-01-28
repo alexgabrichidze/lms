@@ -29,9 +29,12 @@ public interface BookService {
     /**
      * Retrieves all books in the library.
      *
+     * @param page the page number (zero-based)
+     * @param size the number of books per page
      * @return a list of all Book objects
+     * 
      */
-    List<Book> getAllBooks();
+    List<Book> getAllBooks(int page, int size);
 
     /**
      * Updates the details of an existing book after validation.
@@ -52,18 +55,22 @@ public interface BookService {
      *
      * @param title the title to search for (case-insensitive, partial matches
      *              allowed)
+     * @param page  the page number (zero-based)
+     * @param size  the number of books per page
      * @return a list of books matching the title
      */
-    List<Book> getBooksByTitle(String title);
+    List<Book> getBooksByTitle(String title, int page, int size);
 
     /**
      * Retrieves books by their author.
      *
      * @param author the author to search for (case-insensitive, partial matches
      *               allowed)
+     * @param page   the page number (zero-based)
+     * @param size   the number of books per page
      * @return a list of books matching the author
      */
-    List<Book> getBooksByAuthor(String author);
+    List<Book> getBooksByAuthor(String author, int page, int size);
 
     /**
      * Retrieves a book by its ISBN.
