@@ -28,9 +28,11 @@ public interface BookDao {
     /**
      * Retrieves all books in the database.
      *
+     * @param offset the number of books to skip
+     * @param limit  the maximum number of books to retrieve
      * @return a list of all Book objects
      */
-    List<Book> getAllBooks();
+    List<Book> getAllBooks(int offset, int limit);
 
     /**
      * Updates the details of an existing book in the database.
@@ -42,20 +44,24 @@ public interface BookDao {
     /**
      * Retrieves books by their title from the database.
      *
-     * @param title the title to search for (case-insensitive, partial matches
-     *              allowed)
+     * @param title  the title to search for (case-insensitive, partial matches
+     *               allowed)
+     * @param offset the number of books to skip
+     * @param limit  the maximum number of books to retrieve
      * @return a list of books matching the title
      */
-    List<Book> getBooksByTitle(String title);
+    List<Book> getBooksByTitle(String title, int offset, int limit);
 
     /**
      * Retrieves books by their author from the database.
      *
      * @param author the author to search for (case-insensitive, partial matches
      *               allowed)
+     * @param offset the number of books to skip
+     * @param limit  the maximum number of books to retrieve
      * @return a list of books matching the author
      */
-    List<Book> getBooksByAuthor(String author);
+    List<Book> getBooksByAuthor(String author, int offset, int limit);
 
     /**
      * Retrieves a book by its ISBN from the database.
