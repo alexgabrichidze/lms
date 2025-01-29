@@ -7,6 +7,7 @@ import com.library.model.BookStatus;
 
 import com.library.service.exceptions.BookNotFoundException;
 import com.library.service.exceptions.InvalidBookException;
+import com.library.util.PaginatedResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +111,7 @@ public class BookServiceImpl implements BookService {
      * @return a list of all Book objects
      */
     @Override
-    public List<Book> getAllBooks(int page, int size) {
+    public PaginatedResponse<Book> getAllBooks(int page, int size) {
         // Log the fetch operation
         logger.info("Fetching all books for page {} with size {}", page, size);
 
@@ -119,10 +120,11 @@ public class BookServiceImpl implements BookService {
 
         // Fetch all books
         List<Book> books = bookDao.getAllBooks(offset, size);
+        long totalItems = bookDao.countAllBooks();
 
         // Log the count of books fetched and return the list
         logger.info("Successfully fetched {} books.", books.size());
-        return books;
+        return new PaginatedResponse<Book>(books, page, size, totalItems);
     }
 
     /**
@@ -222,7 +224,7 @@ public class BookServiceImpl implements BookService {
      * @return a list of books matching the title
      */
     @Override
-    public List<Book> getBooksByTitle(String title, int page, int size) {
+    public PaginatedResponse<Book> getBooksByTitle(String title, int page, int size) {
 
         // Log the fetch attempt
         logger.info("Fetching books by title {} for page {} with size {}", title, page, size);
@@ -232,6 +234,7 @@ public class BookServiceImpl implements BookService {
 
         // Fetch books by title
         List<Book> books = bookDao.getBooksByTitle(title, offset, size);
+        long totalItems = bookDao.countBooksByTitle(title);
 
         // If no books are found, log a warning and return an empty list
         if (books.isEmpty()) {
@@ -241,7 +244,7 @@ public class BookServiceImpl implements BookService {
 
         // Log success and return
         logger.info("Successfully fetched {} book(s) matching title: {}", books.size(), title);
-        return books;
+        return new PaginatedResponse<>(books, page, page, totalItems);
     }
 
     /**
@@ -254,7 +257,7 @@ public class BookServiceImpl implements BookService {
      * @return a list of books matching the author
      */
     @Override
-    public List<Book> getBooksByAuthor(String author, int page, int size) {
+    public PaginatedResponse<Book> getBooksByAuthor(String author, int page, int size) {
 
         // Log the fetch attempt
         logger.info("Fetching books by author {} for page {} with size {}", author, page, size);
@@ -264,6 +267,7 @@ public class BookServiceImpl implements BookService {
 
         // Fetch books by author
         List<Book> books = bookDao.getBooksByAuthor(author, offset, size);
+        long totalItems = bookDao.countBooksByAuthor(author);
 
         // If no books are found, log a warning and return an empty list
         if (books.isEmpty()) {
@@ -273,7 +277,7 @@ public class BookServiceImpl implements BookService {
 
         // Log success and return
         logger.info("Successfully fetched {} book(s) by author: {}", books.size(), author);
-        return books;
+        return new PaginatedResponse<>(books, page, page, totalItems);
     }
 
     /**
