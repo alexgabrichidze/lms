@@ -57,13 +57,13 @@ public class BookController extends BaseController {
 
             // Route the request based on the path
             if (path.matches("/books")) {
-                if (query != null) {
-
-                    // Handle search functionality
+                // Check if query parameters exist
+                if (query != null
+                        && (query.contains("title=") || query.contains("author=") || query.contains("isbn="))) {
+                    // Search functionality (title, author, ISBN)
                     handleSearchBooks(exchange, query, method);
                 } else {
-
-                    // Handle /books endpoint
+                    // General book listing (with optional pagination)
                     handleBooksEndpoint(exchange, method, query);
                 }
             } else if (path.matches("/books/\\d+")) {
@@ -119,7 +119,7 @@ public class BookController extends BaseController {
         switch (method) {
             case "GET":
                 // Parse query parameters into map
-                Map<String, String> queryParams = parseQueryParameters(query);
+                Map<String, String> queryParams = query != null ? parseQueryParameters(query) : Map.of();
                 int page = Integer.parseInt(queryParams.getOrDefault("page", "0"));
                 int size = Integer.parseInt(queryParams.getOrDefault("size", "10"));
 

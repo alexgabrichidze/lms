@@ -111,7 +111,6 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public List<Book> getAllBooks(int page, int size) {
-
         // Log the fetch operation
         logger.info("Fetching all books for page {} with size {}", page, size);
 
