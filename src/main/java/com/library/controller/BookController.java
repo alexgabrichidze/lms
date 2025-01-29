@@ -5,6 +5,7 @@ import com.library.model.BookStatus;
 import com.library.service.BookService;
 import com.library.service.exceptions.BookNotFoundException;
 import com.library.service.exceptions.InvalidBookException;
+import com.library.util.PaginatedResponse;
 import com.sun.net.httpserver.HttpExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,12 +124,13 @@ public class BookController extends BaseController {
                 int page = Integer.parseInt(queryParams.getOrDefault("page", "0"));
                 int size = Integer.parseInt(queryParams.getOrDefault("size", "10"));
 
-                // Retrieve paginated books from service
-                List<Book> books = bookService.getAllBooks(page, size);
+                // Retrieve paginated books with metadata
+                PaginatedResponse<Book> response = bookService.getAllBooks(page, size);
 
                 // Send response and log success
-                sendResponse(exchange, 200, objectMapper.writeValueAsString(books));
-                logger.info("Successfully retrieved all books");
+                sendResponse(exchange, 200, objectMapper.writeValueAsString(response));
+                logger.info("Successfully retrieved books with pagination: page {}, size {}", response.getPage(),
+                        response.getSize());
                 break;
             case "POST":
                 // Parse the request body into a Book object
@@ -240,12 +242,12 @@ public class BookController extends BaseController {
             // Validate that the title is not empty
             validateFieldsNotEmpty(title, "Title");
 
-            // Retrieve the list of books by title from the service
-            List<Book> books = bookService.getBooksByTitle(title, page, size);
+            // Retrieve paginated books by title
+            PaginatedResponse<Book> response = bookService.getBooksByTitle(title, page, size);
 
             // Send success response and log success
-            sendResponse(exchange, 200, objectMapper.writeValueAsString(books));
-            logger.info("Successfully searched books by title: {}", title);
+            sendResponse(exchange, 200, objectMapper.writeValueAsString(response));
+            logger.info("Successfully searched books by title: '{}' (page {}, size {})", title, page, size);
         } else if (queryParams.containsKey("author")) {
             // Search books by author
             String author = queryParams.get("author");
@@ -253,12 +255,12 @@ public class BookController extends BaseController {
             // Validate that the author is not empty
             validateFieldsNotEmpty(author, "Author");
 
-            // Retrieve the list of books by author from the service
-            List<Book> books = bookService.getBooksByAuthor(author, page, size);
+            // Retrieve paginated books by author
+            PaginatedResponse<Book> response = bookService.getBooksByAuthor(author, page, size);
 
             // Send success response and log success
-            sendResponse(exchange, 200, objectMapper.writeValueAsString(books));
-            logger.info("Successfully searched books by author: {}", author);
+            sendResponse(exchange, 200, objectMapper.writeValueAsString(response));
+            logger.info("Successfully searched books by author: '{}' (page {}, size {})", author, page, size);
         } else if (queryParams.containsKey("isbn")) {
             // Search books by ISBN
             String isbn = queryParams.get("isbn");
