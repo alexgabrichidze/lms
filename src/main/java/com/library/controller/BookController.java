@@ -111,6 +111,7 @@ public class BookController extends BaseController {
      * @param exchange The HttpExchange object representing the HTTP request and
      *                 response.
      * @param method   The HTTP method (e.g., GET, POST).
+     * @param query    The query string (e.g., page=0, size=10).
      * @throws IOException If an I/O error occurs while handling the
      *                     request.
      */
