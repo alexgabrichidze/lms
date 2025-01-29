@@ -2,8 +2,7 @@ package com.library.service;
 
 import com.library.model.Book;
 import com.library.model.BookStatus;
-
-import java.util.List;
+import com.library.util.PaginatedResponse;
 
 /**
  * Service interface for managing books in the library system.
@@ -27,14 +26,13 @@ public interface BookService {
     Book getBookById(int id);
 
     /**
-     * Retrieves all books in the library.
+     * Retrieves all books in the library with pagination.
      *
      * @param page the page number (zero-based)
      * @param size the number of books per page
-     * @return a list of all Book objects
-     * 
+     * @return a paginated response containing books and metadata
      */
-    List<Book> getAllBooks(int page, int size);
+    PaginatedResponse<Book> getAllBooks(int page, int size);
 
     /**
      * Updates the details of an existing book after validation.
@@ -51,26 +49,26 @@ public interface BookService {
     void deleteBook(int id);
 
     /**
-     * Retrieves books by their title.
+     * Retrieves books by their title with pagination.
      *
      * @param title the title to search for (case-insensitive, partial matches
      *              allowed)
      * @param page  the page number (zero-based)
      * @param size  the number of books per page
-     * @return a list of books matching the title
+     * @return a paginated response containing books and metadata
      */
-    List<Book> getBooksByTitle(String title, int page, int size);
+    PaginatedResponse<Book> getBooksByTitle(String title, int page, int size);
 
     /**
-     * Retrieves books by their author.
+     * Retrieves books by their author with pagination.
      *
      * @param author the author to search for (case-insensitive, partial matches
      *               allowed)
      * @param page   the page number (zero-based)
      * @param size   the number of books per page
-     * @return a list of books matching the author
+     * @return a paginated response containing books and metadata
      */
-    List<Book> getBooksByAuthor(String author, int page, int size);
+    PaginatedResponse<Book> getBooksByAuthor(String author, int page, int size);
 
     /**
      * Retrieves a book by its ISBN.
