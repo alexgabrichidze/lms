@@ -64,7 +64,7 @@ public class BookController extends BaseController {
                 } else {
 
                     // Handle /books endpoint
-                    handleBooksEndpoint(exchange, method);
+                    handleBooksEndpoint(exchange, method, query);
                 }
             } else if (path.matches("/books/\\d+")) {
                 int id = extractIdFromPath(path);
@@ -114,16 +114,19 @@ public class BookController extends BaseController {
      * @throws IOException If an I/O error occurs while handling the
      *                     request.
      */
-    private void handleBooksEndpoint(HttpExchange exchange, String method) throws IOException {
+    private void handleBooksEndpoint(HttpExchange exchange, String method, String query) throws IOException {
         switch (method) {
             case "GET":
-                // Retrieve all books from the service
-                List<Book> books = bookService.getAllBooks();
+                // Parse query parameters into map
+                Map<String, String> queryParams = parseQueryParameters(query);
+                int page = Integer.parseInt(queryParams.getOrDefault("page", "0"));
+                int size = Integer.parseInt(queryParams.getOrDefault("size", "10"));
 
-                // Send the list of books as JSON
+                // Retrieve paginated books from service
+                List<Book> books = bookService.getAllBooks(page, size);
+
+                // Send response and log success
                 sendResponse(exchange, 200, objectMapper.writeValueAsString(books));
-
-                // Log the successful retrieval of all books
                 logger.info("Successfully retrieved all books");
                 break;
             case "POST":
@@ -147,7 +150,6 @@ public class BookController extends BaseController {
 
                 // Send success response and log success
                 sendResponse(exchange, 201, "Book added successfully");
-
                 logger.info("Successfully added book with ID: {}", book.getId());
                 break;
             default:
@@ -226,6 +228,8 @@ public class BookController extends BaseController {
 
         // Parse the query parameters into a map
         Map<String, String> queryParams = parseQueryParameters(query);
+        int page = Integer.parseInt(queryParams.getOrDefault("page", "0"));
+        int size = Integer.parseInt(queryParams.getOrDefault("size", "10"));
 
         // Handle search by title, author, or ISBN
         if (queryParams.containsKey("title")) {
@@ -236,7 +240,7 @@ public class BookController extends BaseController {
             validateFieldsNotEmpty(title, "Title");
 
             // Retrieve the list of books by title from the service
-            List<Book> books = bookService.getBooksByTitle(title);
+            List<Book> books = bookService.getBooksByTitle(title, page, size);
 
             // Send success response and log success
             sendResponse(exchange, 200, objectMapper.writeValueAsString(books));
@@ -249,7 +253,7 @@ public class BookController extends BaseController {
             validateFieldsNotEmpty(author, "Author");
 
             // Retrieve the list of books by author from the service
-            List<Book> books = bookService.getBooksByAuthor(author);
+            List<Book> books = bookService.getBooksByAuthor(author, page, size);
 
             // Send success response and log success
             sendResponse(exchange, 200, objectMapper.writeValueAsString(books));
