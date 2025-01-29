@@ -336,6 +336,83 @@ public class BookDaoImpl implements BookDao {
     }
 
     /**
+     * Counts the total number of books in the library.
+     *
+     * @return the total number of books
+     */
+    @Override
+    public long countAllBooks() {
+        String sql = "SELECT COUNT(*) FROM books";
+
+        try (Connection connection = ConnectionManager.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery()) {
+
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+        } catch (SQLException e) {
+            logger.error("Error while counting all books");
+            throw new RuntimeException("Failed to count all books", e);
+        }
+        return 0;
+    }
+
+    /**
+     * Counts the total number of books that match a given title.
+     *
+     * @param title the title to search for
+     * @return the total number of books with the given title
+     */
+    @Override
+    public long countBooksByTitle(String title) {
+        String sql = "SELECT COUNT(*) FROM books WHERE LOWER(title) LIKE ?";
+
+        try (Connection connection = ConnectionManager.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, "%" + title.toLowerCase() + "%");
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getLong(1);
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error while counting books by title: {}", title);
+            throw new RuntimeException("Failed to count books by title", e);
+        }
+        return 0;
+    }
+
+    /**
+     * Counts the total number of books that match a given author.
+     *
+     * @param author the author to search for
+     * @return the total number of books written by the given author
+     */
+    @Override
+    public long countBooksByAuthor(String author) {
+        String sql = "SELECT COUNT(*) FROM books WHERE LOWER(author) LIKE ?";
+
+        try (Connection connection = ConnectionManager.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, "%" + author.toLowerCase() + "%");
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getLong(1);
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error while counting books by author: {}", author);
+            throw new RuntimeException("Failed to count books by author", e);
+        }
+        return 0;
+    }
+
+    /**
      * Helper method to map a result set to a Book object.
      *
      * @param resultSet the result set to map

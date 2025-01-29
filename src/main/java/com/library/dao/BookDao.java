@@ -78,4 +78,28 @@ public interface BookDao {
      * @param id the ID of the book to delete
      */
     void deleteBook(int id);
+
+    /**
+     * Counts the total number of books in the library.
+     *
+     * @return the total number of books
+     */
+    long countAllBooks();
+
+    /**
+     * Counts the total number of books that match a given title.
+     *
+     * @param title the title to search for
+     * @return the total number of books with the given title
+     */
+    long countBooksByTitle(String title);
+
+    /**
+     * Counts the total number of books that match a given author.
+     *
+     * @param author the author to search for
+     * @return the total number of books written by the given author
+     */
+    long countBooksByAuthor(String author);
+
 }
