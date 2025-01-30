@@ -108,16 +108,23 @@ public class UserDaoImpl implements UserDao {
     /**
      * Retrieves all users from the database.
      *
+     * @param offset the number of records to skip
+     * @param limit  the maximum number of records to retrieve
      * @return a list of User objects, or an empty list if no users are found
      */
     @Override
-    public List<User> getAllUsers() {
+    public List<User> getAllUsers(int offset, int limit) {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT id, name, email, role FROM users";
+        String sql = "SELECT * FROM users ORDER BY id LIMIT ? OFFSET ?";
 
         try (Connection connection = ConnectionManager.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql);
-                ResultSet resultSet = statement.executeQuery()) {
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            // Set query values
+            statement.setInt(1, limit);
+            statement.setInt(2, offset);
+
+            // Execute query
+            ResultSet resultSet = statement.executeQuery();
 
             // Log the users being fetched
             logger.info("Fetching all users.");
@@ -128,13 +135,11 @@ public class UserDaoImpl implements UserDao {
             }
 
             // Log the users fetched
-            logger.info("Successfully fetched {} users.", users.size());
+            logger.info("Successfully fetched {} users with offset {} and limit {}", users.size(), offset, limit);
 
             // Return the list of User objects
             return users;
-
         } catch (SQLException e) {
-
             // Log and throw a runtime exception if an error occurs
             logger.error("Error while fetching all users");
             throw new RuntimeException("Failed to fetch all users", e);
@@ -250,6 +255,29 @@ public class UserDaoImpl implements UserDao {
             logger.error("Error while fetching user with email: {}", email);
             throw new RuntimeException("Failed to fetch user by email", e);
         }
+    }
+
+    /**
+     * Counts the total number of users in the database.
+     *
+     * @return the total number of users
+     */
+    @Override
+    public long countAllUsers() {
+        String sql = "SELECT COUNT(*) FROM users";
+
+        try (Connection connection = ConnectionManager.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery()) {
+
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+        } catch (SQLException e) {
+            logger.error("Error while counting users");
+            throw new RuntimeException("Failed to count users", e);
+        }
+        return 0;
     }
 
     /**
