@@ -29,9 +29,11 @@ public interface UserDao {
     /**
      * Retrieves all users from the database.
      * 
+     * @param offset the number of records to skip
+     * @param limit  the maximum number of records to retrieve
      * @return a list of User objects, or an empty list if no users are found
      */
-    List<User> getAllUsers();
+    List<User> getAllUsers(int offset, int limit);
 
     /**
      * Updates the details of an existing user in the database.
