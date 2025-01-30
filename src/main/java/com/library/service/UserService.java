@@ -1,7 +1,7 @@
 package com.library.service;
 
 import com.library.model.User;
-import java.util.List;
+import com.library.util.PaginatedResponse;
 
 /**
  * Interface for user-related business logic.
@@ -24,11 +24,13 @@ public interface UserService {
     User getUserById(int id);
 
     /**
-     * Retrieves all users in the system.
+     * Retrieves a paginated list of users.
      *
-     * @return a list of all User objects
+     * @param page the page number (zero-based)
+     * @param size the number of users per page
+     * @return a paginated response containing users and metadata
      */
-    List<User> getAllUsers();
+    PaginatedResponse<User> getAllUsers(int page, int size);
 
     /**
      * Updates an existing user's details.
