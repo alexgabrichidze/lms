@@ -4,6 +4,7 @@ import com.library.dao.UserDao;
 import com.library.dao.UserDaoImpl;
 import com.library.model.User;
 import com.library.service.exceptions.UserNotFoundException;
+import com.library.util.PaginatedResponse;
 import com.library.service.exceptions.InvalidUserException;
 import java.util.regex.Pattern;
 
@@ -105,28 +106,33 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Retrieves all users in the system.
+     * Retrieves a paginated list of users.
      *
-     * @return a list of all User objects
+     * @param page the page number (zero-based)
+     * @param size the number of users per page
+     * @return a paginated response containing users and metadata
      */
     @Override
-    public List<User> getAllUsers() {
-
+    public PaginatedResponse<User> getAllUsers(int page, int size) {
         // Log the user retrieval attempt
-        logger.info("Fetching all users");
+        logger.info("Fetching users for page {} with size {}", page, size);
 
-        // Fetch all users
-        List<User> users = userDao.getAllUsers();
+        // Calculate offset
+        int offset = page * size;
 
-        // If no users are found, throw an exception and log the warning
+        // Fetch all users and count total items
+        List<User> users = userDao.getAllUsers(offset, size);
+        long totalItems = userDao.countAllUsers();
+
+        // If no users are found, throw exception and log warning
         if (users.isEmpty()) {
             logger.warn("No users found");
             throw new UserNotFoundException("No users found.");
         }
 
-        // Log the success and return the list
+        // Log success and return paginated response
         logger.info("Successfully fetched {} users", users.size());
-        return users;
+        return new PaginatedResponse<>(users, page, size, totalItems);
     }
 
     /**
