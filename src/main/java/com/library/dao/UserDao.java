@@ -58,4 +58,11 @@ public interface UserDao {
      *         exists
      */
     User getUserByEmail(String email);
+
+    /**
+     * Counts the total number of users in the database.
+     *
+     * @return the total number of users
+     */
+    long countAllUsers();
 }
