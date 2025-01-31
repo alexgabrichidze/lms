@@ -1,14 +1,12 @@
 package com.library.service;
 
 import com.library.model.Loan;
-
-import java.util.List;
+import com.library.util.PaginatedResponse;
 
 /**
  * Service interface for managing loans in the library system.
  */
 public interface LoanService {
-
     /**
      * Creates a new loan.
      *
@@ -27,9 +25,11 @@ public interface LoanService {
     /**
      * Retrieves all loans in the system.
      *
+     * @param page the page number (zero-based)
+     * @param size the number of loans per page
      * @return a list of all loans
      */
-    List<Loan> getAllLoans();
+    PaginatedResponse<Loan> getAllLoans(int page, int size);
 
     /**
      * Updates an existing loan.
@@ -49,7 +49,9 @@ public interface LoanService {
      * Retrieves loans for a specific user by their user ID.
      *
      * @param userId the user ID for which to retrieve loans
+     * @param page   the page number (zero-based)
+     * @param size   the number of loans per page
      * @return a list of loans associated with the user
      */
-    List<Loan> getLoansByUserId(int userId);
+    PaginatedResponse<Loan> getLoansByUserId(int userId, int page, int size);
 }
