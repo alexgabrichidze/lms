@@ -5,7 +5,8 @@ import java.util.List;
 
 /**
  * Interface for managing loan-related database operations.
- * Provides methods to perform CRUD operations and other queries on the loans
+ * Provides methods to perform CRUD operations and paginated queries on the
+ * loans
  * table.
  */
 public interface LoanDao {
@@ -26,11 +27,13 @@ public interface LoanDao {
     Loan getLoanById(int id);
 
     /**
-     * Retrieves all loans from the database.
+     * Retrieves paginated loans from the database.
      *
+     * @param offset the number of loans to skip
+     * @param limit  the maximum number of loans to retrieve
      * @return a list of Loan objects, or an empty list if no loans are found
      */
-    List<Loan> getAllLoans();
+    List<Loan> getAllLoans(int offset, int limit);
 
     /**
      * Updates the details of an existing loan in the database.
@@ -47,18 +50,45 @@ public interface LoanDao {
     void deleteLoan(int id);
 
     /**
-     * Retrieves all loans for a specific user.
+     * Retrieves paginated loans for a specific user from database.
      *
      * @param userId the ID of the user
+     * @param offset the number of loans to skip
+     * @param limit  the maximum number of loans to retrieve
      * @return a list of Loan objects for the user, or an empty list if none exist
      */
-    List<Loan> getLoansByUserId(int userId);
+    List<Loan> getLoansByUserId(int userId, int offset, int limit);
 
     /**
-     * Retrieves all loans for a specific book.
+     * Retrieves paginated loans for a specific book from database.
      *
      * @param bookId the ID of the book
+     * @param offset the number of loans to skip
+     * @param limit  the maximum number of loans to retrieve
      * @return a list of Loan objects for the book, or an empty list if none exist
      */
-    List<Loan> getLoansByBookId(int bookId);
+    List<Loan> getLoansByBookId(int bookId, int offset, int limit);
+
+    /**
+     * Counts the total number of loans in the database.
+     *
+     * @return the total number of loans
+     */
+    long countLoans();
+
+    /**
+     * Counts the total number of loans for a specific user.
+     *
+     * @param userId the ID of the user
+     * @return the total number of loans for the user
+     */
+    long countLoansByUserId(int userId);
+
+    /**
+     * Counts the total number of loans for a specific book.
+     *
+     * @param bookId the ID of the book
+     * @return the total number of loans for the book
+     */
+    long countLoansByBookId(int bookId);
 }
