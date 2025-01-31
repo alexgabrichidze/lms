@@ -53,11 +53,11 @@ public interface LoanDao {
      * Retrieves paginated loans for a specific user from database.
      *
      * @param userId the ID of the user
-     * @param offset the number of loans to skip
      * @param limit  the maximum number of loans to retrieve
+     * @param cursor the cursor for the next page
      * @return a list of Loan objects for the user, or an empty list if none exist
      */
-    List<Loan> getLoansByUserId(int userId, int offset, int limit);
+    List<Loan> getLoansByUserId(int userId, int limit, String cursor);
 
     /**
      * Counts the total number of loans in the database.
