@@ -7,6 +7,7 @@ import com.library.model.Loan;
 import com.library.service.exceptions.InvalidLoanException;
 import com.library.service.exceptions.LoanConflictException;
 import com.library.service.exceptions.LoanNotFoundException;
+import com.library.util.PaginatedResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,16 +124,20 @@ public class LoanServiceImpl implements LoanService {
     /**
      * Retrieves all loans in the system.
      *
+     * @param page the page number (zero-based)
+     * @param size the number of loans per page
      * @return a list of all loans
      */
     @Override
-    public List<Loan> getAllLoans() {
-
-        // Log the loan retrieval attempt
+    public PaginatedResponse<Loan> getAllLoans(int page, int size) {
         logger.info("Fetching all loans.");
 
-        // Fetch all loans
-        List<Loan> loans = loanDao.getAllLoans();
+        // Calculate offset
+        int offset = page * size;
+
+        // Fetch paginated loans
+        List<Loan> loans = loanDao.getAllLoans(offset, size);
+        long totalItems = loanDao.countLoans();
 
         // Check if nothing has been found
         if (loans.isEmpty()) {
@@ -140,9 +145,9 @@ public class LoanServiceImpl implements LoanService {
             throw new LoanNotFoundException("No loans found.");
         }
 
-        // Log the success and return the list
+        // Log success and return
         logger.info("Successfully fetched {} loans.", loans.size());
-        return loans;
+        return new PaginatedResponse<>(loans, page, size, totalItems);
     }
 
     /**
@@ -235,19 +240,23 @@ public class LoanServiceImpl implements LoanService {
     }
 
     /**
-     * Retrieves loans for a specific book by its book ID.
+     * Retrieves loans for a specific user using cursor-based pagination.
      *
-     * @param bookId the book ID for which to retrieve loans
-     * @return a list of loans associated with the book
+     * @param userId the user ID for which to retrieve loans
+     * @param cursor the last loan_date from the previous page (or null for first
+     *               page)
+     * @param limit  the number of loans per page
+     * @return a paginated response containing loans and metadata
      */
     @Override
-    public List<Loan> getLoansByUserId(int userId) {
+    public PaginatedResponse<Loan> getLoansByUserId(int userId, int limit, String cursor) {
 
         // Log the loan retrieval attempt
         logger.info("Fetching loans for user ID: {}", userId);
 
         // Fetch loans by user ID
-        List<Loan> loans = loanDao.getLoansByUserId(userId);
+        List<Loan> loans = loanDao.getLoansByUserId(userId, limit, cursor);
+        long totalItems = loanDao.countLoansByUserId(userId);
 
         // Check if nothing has been found
         if (loans.isEmpty()) {
@@ -255,8 +264,12 @@ public class LoanServiceImpl implements LoanService {
             throw new LoanNotFoundException("No loans found.");
         }
 
+        // Generate next cursor from the last loan in the list
+        Loan lastLoan = loans.get(loans.size() - 1);
+        String nextCursor = lastLoan.getLoanDate() + "_" + lastLoan.getId();
+
         // Log the success and return the list
         logger.info("Successfully fetched {} loans for user ID: {}", loans.size(), userId);
-        return loans;
+        return new PaginatedResponse<>(loans, nextCursor, limit, totalItems);
     }
 }

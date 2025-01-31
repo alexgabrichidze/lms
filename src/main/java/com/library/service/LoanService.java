@@ -46,12 +46,12 @@ public interface LoanService {
     void deleteLoan(int id);
 
     /**
-     * Retrieves loans for a specific user by their user ID.
+     * Retrieves loans for a specific user using cursor-based pagination.
      *
      * @param userId the user ID for which to retrieve loans
-     * @param page   the page number (zero-based)
-     * @param size   the number of loans per page
-     * @return a list of loans associated with the user
+     * @param limit  the number of loans per page
+     * @param cursor the cursor for the next page
+     * @return a paginated response containing loans and metadata
      */
-    PaginatedResponse<Loan> getLoansByUserId(int userId, int page, int size);
+    PaginatedResponse<Loan> getLoansByUserId(int userId, int limit, String cursor);
 }
