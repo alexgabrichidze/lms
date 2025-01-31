@@ -93,37 +93,36 @@ public class LoanDaoImpl implements LoanDao {
     }
 
     /**
-     * Retrieves all loans from the loans table.
-     * 
-     * @return a list of all loans
+     * Retrieves paginated loans from the database.
+     *
+     * @param offset the number of loans to skip
+     * @param limit  the maximum number of loans to retrieve
+     * @return a list of Loan objects, or an empty list if no loans are found
      */
     @Override
-    public List<Loan> getAllLoans() {
-        String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans";
-
-        // Log the loans being fetched
+    public List<Loan> getAllLoans(int offset, int limit) {
+        String sql = "SELECT * FROM loans ORDER BY id LIMIT ? OFFSET ?";
         logger.info("Fetching all loans");
-
         List<Loan> loans = new ArrayList<>();
 
         try (Connection connection = ConnectionManager.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql);
-                ResultSet resultSet = statement.executeQuery()) {
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, limit);
+            statement.setInt(2, offset);
+
+            ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-
-                // Map each row to a Loan object and add it to the list
-                Loan loan = mapResultSetToLoan(resultSet);
-                loans.add(loan);
+                loans.add(mapResultSetToLoan(resultSet));
             }
 
-            // Log the number of loans fetched and return the list of loans
-            logger.info("Successfully fetched {} loans", loans.size()); // Log the number of loans fetched
+            // Log success and return
+            logger.info("Successfully fetched {} loans", loans.size());
             return loans;
         } catch (SQLException e) {
-
-            // Log the error and throw a new runtime exception
-            logger.error("Error while fetching all loans", e); // Log the error
+            // Log error and throw runtime exception
+            logger.error("Error while fetching all loans", e);
             throw new RuntimeException("Failed to fetch all loans", e);
         }
     }
@@ -190,36 +189,37 @@ public class LoanDaoImpl implements LoanDao {
     }
 
     /**
-     * Retrieves all loans for a specific user by user ID from the loans table.
+     * Retrieves paginated loans for a specific user by user ID from the loans
+     * table.
      * 
      * @param userId the ID of the user
+     * @param offset the number of loans to skip
+     * @param limit  the maximum number of loans to retrieve
      * @return a list of loans for the user
      */
     @Override
-    public List<Loan> getLoansByUserId(int userId) {
-        String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans WHERE user_id = ?";
-
-        // Log the loans being fetched by used ID
+    public List<Loan> getLoansByUserId(int userId, int offset, int limit) {
+        String sql = "SELECT * FROM loans WHERE user_id = ? ORDER BY loan_date DESC LIMIT ? OFFSET ?";
         logger.info("Fetching loans for user ID: {}", userId);
-
         List<Loan> loans = new ArrayList<>();
 
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, userId);
+            statement.setInt(2, limit);
+            statement.setInt(3, offset);
+
             ResultSet resultSet = statement.executeQuery();
 
-            // Iterate over the result set and add each loan to the list
             while (resultSet.next()) {
                 loans.add(mapResultSetToLoan(resultSet));
             }
 
-            // Log the number of loans fetched and return the list of loans
-            logger.info("Fetched {} loans for user ID: {}", loans.size(), userId); // Log the number of loans fetched
+            // Log success and return
+            logger.info("Fetched {} loans for user ID: {}", loans.size(), userId);
             return loans;
         } catch (SQLException e) {
-
             // Log the error and throw a new runtime exception
             logger.error("Error while fetching loans for user ID: {}", userId, e); // Log the error
             throw new RuntimeException("Failed to fetch loans", e);
@@ -230,37 +230,113 @@ public class LoanDaoImpl implements LoanDao {
      * Retrieves all loans for a specific book by book ID from the loans table.
      * 
      * @param bookId the ID of the book
+     * @param offset the number of loans to skip
+     * @param limit  the maximum number of loans to retrieve
      * @return a list of loans for the book
      */
     @Override
-    public List<Loan> getLoansByBookId(int bookId) {
-        String sql = "SELECT id, user_id, book_id, loan_date, return_date FROM loans WHERE book_id = ?";
-
-        // Log the loans being fetched by book ID
+    public List<Loan> getLoansByBookId(int bookId, int offset, int limit) {
+        String sql = "SELECT * FROM loans WHERE book_id = ? ORDER BY loan_date DESC LIMIT ? OFFSET ?";
         logger.info("Fetching loans for book ID: {}", bookId);
-
         List<Loan> loans = new ArrayList<>();
 
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, bookId);
+            statement.setInt(2, limit);
+            statement.setInt(3, offset);
 
-            // Execute the query and get the result set
             ResultSet resultSet = statement.executeQuery();
 
-            // Iterate over the result set and add each loan to the list
             while (resultSet.next()) {
                 loans.add(mapResultSetToLoan(resultSet));
             }
 
-            // Log the number of loans fetched and return the list of loans
-            logger.info("Fetched {} loans for book ID: {}", loans.size(), bookId); // Log the number of loans fetched
+            // Log success and return
+            logger.info("Fetched {} loans for book ID: {}", loans.size(), bookId);
             return loans;
         } catch (SQLException e) {
-            logger.error("Error while fetching loans for book ID: {}", bookId, e); // Log the error
+            logger.error("Error while fetching loans for book ID: {}", bookId, e);
             throw new RuntimeException("Failed to fetch loans", e);
         }
+    }
+
+    /**
+     * Counts the total number of loans in the database.
+     *
+     * @return the total number of loans
+     */
+    @Override
+    public long countLoans() {
+        String sql = "SELECT COUNT(*) FROM loans";
+
+        try (Connection connection = ConnectionManager.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery()) {
+
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+        } catch (SQLException e) {
+            logger.error("Error while counting loans", e);
+            throw new RuntimeException("Failed to count loans", e);
+        }
+        return 0;
+    }
+
+    /**
+     * Counts the total number of loans for a specific user.
+     *
+     * @param userId the ID of the user
+     * @return the total number of loans for the user
+     */
+    @Override
+    public long countLoansByUserId(int userId) {
+        String sql = "SELECT COUNT(*) FROM loans WHERE user_id = ?";
+
+        try (Connection connection = ConnectionManager.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, userId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getLong(1);
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error while counting loans for user ID: {}", userId, e);
+            throw new RuntimeException("Failed to count loans by user", e);
+        }
+        return 0;
+    }
+
+    /**
+     * Counts the total number of loans for a specific book.
+     *
+     * @param bookId the ID of the book
+     * @return the total number of loans for the book
+     */
+    @Override
+    public long countLoansByBookId(int bookId) {
+        String sql = "SELECT COUNT(*) FROM loans WHERE book_id = ?";
+
+        try (Connection connection = ConnectionManager.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, bookId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getLong(1);
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error while counting loans for book ID: {}", bookId, e);
+            throw new RuntimeException("Failed to count loans by book", e);
+        }
+        return 0;
     }
 
     /**
