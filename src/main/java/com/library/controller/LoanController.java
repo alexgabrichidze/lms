@@ -1,8 +1,5 @@
 package com.library.controller;
 
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-
 import com.library.service.LoanService;
 import com.library.model.Loan;
 
@@ -19,9 +16,6 @@ import static com.library.util.ValidationUtil.*;
 import java.io.IOException;
 
 public class LoanController extends BaseController {
-    // Logger instance
-    private static final Logger logger = LoggerFactory.getLogger(LoanController.class);
-
     // LoanService object
     private final LoanService loanService;
 

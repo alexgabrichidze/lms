@@ -4,10 +4,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import org.slf4j.Logger;
+
 
 /**
  * BaseController provides common functionality for all controllers.
@@ -18,6 +22,9 @@ public abstract class BaseController implements HttpHandler {
 
     // Jackson ObjectMapper for JSON serialization/deserialization
     protected final ObjectMapper objectMapper = new ObjectMapper();
+
+    // Logger instance (shared by all controllers)
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // Initialization block to register the JavaTimeModule
     {

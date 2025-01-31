@@ -7,14 +7,11 @@ import com.library.service.exceptions.BookNotFoundException;
 import com.library.service.exceptions.InvalidBookException;
 import com.library.util.PaginatedResponse;
 import com.sun.net.httpserver.HttpExchange;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import static com.library.util.ValidationUtil.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,8 +20,6 @@ import java.util.Map;
  * operations and search functionality.
  */
 public class BookController extends BaseController {
-    // Logger instance
-    private static final Logger logger = LoggerFactory.getLogger(BookController.class);
 
     // BookService instance
     private final BookService bookService;

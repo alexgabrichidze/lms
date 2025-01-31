@@ -4,15 +4,11 @@ import com.library.service.UserService;
 import com.library.service.exceptions.InvalidUserException;
 import com.library.service.exceptions.UserNotFoundException;
 import com.library.util.PaginatedResponse;
-
-import java.util.List;
 import java.util.Map;
 import com.library.model.User;
 import static com.library.util.ValidationUtil.*;
-import org.slf4j.LoggerFactory;
 import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
-import org.slf4j.Logger;
 
 /**
  * Controller for handling user-related HTTP requests.
@@ -20,10 +16,6 @@ import org.slf4j.Logger;
  * operations and search functionality.
  */
 public class UserController extends BaseController {
-
-    // Logger instance
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-
     // UserService object
     private final UserService userService;
 
@@ -95,6 +87,7 @@ public class UserController extends BaseController {
      *
      * @param exchange The HttpExchange object representing the HTTP request and
      *                 response.
+     * @param query    The query string (e.g., page=0&size=10).
      * @param method   The HTTP method (e.g., GET, POST).
      * @throws IOException If an I/O error occurs while handling the request.
      */
@@ -106,7 +99,7 @@ public class UserController extends BaseController {
                 int page = Integer.parseInt(queryParams.getOrDefault("page", "0"));
                 int size = Integer.parseInt(queryParams.getOrDefault("size", "10"));
 
-                // Retrieve all users from the service
+                // Retrieve paginated users from the service
                 PaginatedResponse<User> response = userService.getAllUsers(page, size);
 
                 // Send success response and log success
