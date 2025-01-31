@@ -12,7 +12,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 
-
 /**
  * BaseController provides common functionality for all controllers.
  * It handles sending HTTP responses, parsing request bodies, and extracting IDs

@@ -3,12 +3,12 @@ package com.library.controller;
 import com.library.service.LoanService;
 import com.library.model.Loan;
 
-import java.util.List;
 import java.util.Map;
 
 import com.library.service.exceptions.InvalidLoanException;
 import com.library.service.exceptions.LoanConflictException;
 import com.library.service.exceptions.LoanNotFoundException;
+import com.library.util.PaginatedResponse;
 import com.sun.net.httpserver.HttpExchange;
 
 import static com.library.util.ValidationUtil.*;
@@ -48,10 +48,10 @@ public class LoanController extends BaseController {
             logger.info("Received {} request for path: {}", method, path);
 
             if (path.matches("/loans")) {
-                if (query != null) {
+                if (query != null && query.contains("userId")) {
                     handleSearchLoans(exchange, query, method);
                 } else {
-                    handleLoansEndpoint(exchange, method);
+                    handleLoansEndpoint(exchange, method, query);
                 }
             } else if (path.matches("/loans/\\d+")) {
                 int id = extractIdFromPath(path);
@@ -93,19 +93,24 @@ public class LoanController extends BaseController {
      * @param exchange The HttpExchange object representing the HTTP request and
      *                 response.
      * @param method   The HTTP method (e.g., GET, POST).
+     * @param query    The query parameters of the request.
      * @throws IOException If an I/O error occurs while handling the request.
      */
-    private void handleLoansEndpoint(HttpExchange exchange, String method) throws IOException {
+    private void handleLoansEndpoint(HttpExchange exchange, String method, String query) throws IOException {
         switch (method) {
             case "GET":
-                // Retrieve all loans from the service
-                List<Loan> loans = loanService.getAllLoans();
+                // Parse query parameters into map
+                Map<String, String> queryParams = query != null ? parseQueryParameters(query) : Map.of();
+                int page = Integer.parseInt(queryParams.getOrDefault("page", "0"));
+                int size = Integer.parseInt(queryParams.getOrDefault("size", "10"));
+
+                // Retrieve paginated loans from the service
+                PaginatedResponse<Loan> response = loanService.getAllLoans(page, size);
 
                 // Send success reponse and log success
-                sendResponse(exchange, 200, objectMapper.writeValueAsString(loans));
+                sendResponse(exchange, 200, objectMapper.writeValueAsString(response));
                 logger.info("Successfully retrieved all loans");
                 break;
-
             case "POST":
                 // Parse the request body into a Loan object
                 Loan loan = parseRequestBody(exchange, Loan.class);
@@ -134,7 +139,6 @@ public class LoanController extends BaseController {
                 // Log the successful creation of the new loan
                 logger.info("Successfully created loan with ID: {}", loan.getId());
                 break;
-
             default:
                 // Handle unsupported HTTP methods
                 sendResponse(exchange, 405, "Method not allowed.");
@@ -148,6 +152,7 @@ public class LoanController extends BaseController {
      * @param exchange The HttpExchange object representing the HTTP request and
      *                 response.
      * @param query    The query parameters of the request.
+     * @param method   The HTTP method (should be GET).
      * @throws IOException If an I/O error occurs while handling the request.
      */
     private void handleSearchLoans(HttpExchange exchange, String query, String method) throws IOException {
@@ -165,14 +170,18 @@ public class LoanController extends BaseController {
             // Parse the user ID from the query parameters
             Integer userId = Integer.parseInt(queryParams.get("userId"));
 
-            // Validate that the user ID is positive
+            // Validate that user ID is positive
             validatePositiveId(userId, "User ID", () -> new InvalidLoanException("Invalid user ID field of the loan"));
 
-            // Retrieve all the loans by user ID from the service
-            List<Loan> loans = loanService.getLoansByUserId(userId);
+            // Extract optional parameters
+            int limit = queryParams.containsKey("limit") ? Integer.parseInt(queryParams.get("limit")) : 10;
+            String cursor = queryParams.getOrDefault("cursor", null);
 
-            // Send the loans info as JSON and log the success
-            sendResponse(exchange, 200, objectMapper.writeValueAsString(loans));
+            // Retrieve paginated loans by user ID from service
+            PaginatedResponse<Loan> response = loanService.getLoansByUserId(userId, limit, cursor);
+
+            // Send response and log success
+            sendResponse(exchange, 200, objectMapper.writeValueAsString(response));
             logger.info("Successfully searched loans by user ID: {}", userId);
         } else {
             // Handle invalid search parameters
@@ -181,6 +190,15 @@ public class LoanController extends BaseController {
         }
     }
 
+    /**
+     * Handles requests to the /loans/{id} endpoint.
+     *
+     * @param exchange The HttpExchange object representing the HTTP request and
+     *                 response.
+     * @param method   The HTTP method (e.g., GET, PATCH, DELETE).
+     * @param id       The ID of the loan to be retrieved, updated, or deleted.
+     * @throws IOException If an I/O error occurs while handling the request.
+     */
     private void handleLoanEndpoint(HttpExchange exchange, String method, int id) throws IOException {
         switch (method) {
             case "GET":
