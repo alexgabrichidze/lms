@@ -193,22 +193,38 @@ public class LoanDaoImpl implements LoanDao {
      * table.
      * 
      * @param userId the ID of the user
-     * @param offset the number of loans to skip
      * @param limit  the maximum number of loans to retrieve
+     * @param cursor the cursor for the next page
      * @return a list of loans for the user
      */
     @Override
-    public List<Loan> getLoansByUserId(int userId, int offset, int limit) {
-        String sql = "SELECT * FROM loans WHERE user_id = ? ORDER BY loan_date DESC LIMIT ? OFFSET ?";
+    public List<Loan> getLoansByUserId(int userId, int limit, String cursor) {
+        String sql = "SELECT * FROM loans WHERE user_id = ? ";
         logger.info("Fetching loans for user ID: {}", userId);
         List<Loan> loans = new ArrayList<>();
+
+        if (cursor != null) {
+            sql += "AND (loan_date, id) < (?, ?) ";
+        }
+
+        sql += "ORDER BY loan_date DESC, id DESC LIMIT ?";
 
         try (Connection connection = ConnectionManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, userId);
-            statement.setInt(2, limit);
-            statement.setInt(3, offset);
+            int paramIndex = 2;
+
+            if (cursor != null) {
+                String[] cursorParts = cursor.split("_");
+                Date lastLoanDate = Date.valueOf(cursorParts[0]);
+                int lastLoanId = Integer.parseInt(cursorParts[1]);
+
+                statement.setDate(paramIndex++, lastLoanDate);
+                statement.setInt(paramIndex++, lastLoanId);
+            }
+
+            statement.setInt(paramIndex, limit);
 
             ResultSet resultSet = statement.executeQuery();
 
