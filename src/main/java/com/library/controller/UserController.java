@@ -3,6 +3,8 @@ package com.library.controller;
 import com.library.service.UserService;
 import com.library.service.exceptions.InvalidUserException;
 import com.library.service.exceptions.UserNotFoundException;
+import com.library.util.PaginatedResponse;
+
 import java.util.List;
 import java.util.Map;
 import com.library.model.User;
@@ -55,10 +57,10 @@ public class UserController extends BaseController {
 
             // Route the request based on the path
             if (path.matches("/users")) {
-                if (query != null) {
+                if (query != null && query.contains("email=")) {
                     handleSearchUsers(exchange, query, method);
                 } else {
-                    handleUsersEndpoint(exchange, method);
+                    handleUsersEndpoint(exchange, method, query);
                 }
             } else if (path.matches("/users/\\d+")) {
                 int id = extractIdFromPath(path);
@@ -96,15 +98,21 @@ public class UserController extends BaseController {
      * @param method   The HTTP method (e.g., GET, POST).
      * @throws IOException If an I/O error occurs while handling the request.
      */
-    private void handleUsersEndpoint(HttpExchange exchange, String method) throws IOException {
+    private void handleUsersEndpoint(HttpExchange exchange, String method, String query) throws IOException {
         switch (method) {
             case "GET":
+                // Parse query parameters into map
+                Map<String, String> queryParams = query != null ? parseQueryParameters(query) : Map.of();
+                int page = Integer.parseInt(queryParams.getOrDefault("page", "0"));
+                int size = Integer.parseInt(queryParams.getOrDefault("size", "10"));
+
                 // Retrieve all users from the service
-                List<User> users = userService.getAllUsers();
+                PaginatedResponse<User> response = userService.getAllUsers(page, size);
 
                 // Send success response and log success
-                sendResponse(exchange, 200, objectMapper.writeValueAsString(users));
-                logger.info("Successfully retrieved all users");
+                sendResponse(exchange, 200, objectMapper.writeValueAsString(response));
+                logger.info("Successfully retrieved users with pagination: page {}, size {}", response.getPage(),
+                        response.getSize());
                 break;
             case "POST":
                 // Parse the request body into a User object
