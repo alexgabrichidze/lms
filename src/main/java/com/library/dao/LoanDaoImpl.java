@@ -227,42 +227,6 @@ public class LoanDaoImpl implements LoanDao {
     }
 
     /**
-     * Retrieves all loans for a specific book by book ID from the loans table.
-     * 
-     * @param bookId the ID of the book
-     * @param offset the number of loans to skip
-     * @param limit  the maximum number of loans to retrieve
-     * @return a list of loans for the book
-     */
-    @Override
-    public List<Loan> getLoansByBookId(int bookId, int offset, int limit) {
-        String sql = "SELECT * FROM loans WHERE book_id = ? ORDER BY loan_date DESC LIMIT ? OFFSET ?";
-        logger.info("Fetching loans for book ID: {}", bookId);
-        List<Loan> loans = new ArrayList<>();
-
-        try (Connection connection = ConnectionManager.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setInt(1, bookId);
-            statement.setInt(2, limit);
-            statement.setInt(3, offset);
-
-            ResultSet resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                loans.add(mapResultSetToLoan(resultSet));
-            }
-
-            // Log success and return
-            logger.info("Fetched {} loans for book ID: {}", loans.size(), bookId);
-            return loans;
-        } catch (SQLException e) {
-            logger.error("Error while fetching loans for book ID: {}", bookId, e);
-            throw new RuntimeException("Failed to fetch loans", e);
-        }
-    }
-
-    /**
      * Counts the total number of loans in the database.
      *
      * @return the total number of loans
@@ -308,33 +272,6 @@ public class LoanDaoImpl implements LoanDao {
         } catch (SQLException e) {
             logger.error("Error while counting loans for user ID: {}", userId, e);
             throw new RuntimeException("Failed to count loans by user", e);
-        }
-        return 0;
-    }
-
-    /**
-     * Counts the total number of loans for a specific book.
-     *
-     * @param bookId the ID of the book
-     * @return the total number of loans for the book
-     */
-    @Override
-    public long countLoansByBookId(int bookId) {
-        String sql = "SELECT COUNT(*) FROM loans WHERE book_id = ?";
-
-        try (Connection connection = ConnectionManager.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setInt(1, bookId);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    return resultSet.getLong(1);
-                }
-            }
-        } catch (SQLException e) {
-            logger.error("Error while counting loans for book ID: {}", bookId, e);
-            throw new RuntimeException("Failed to count loans by book", e);
         }
         return 0;
     }

@@ -60,16 +60,6 @@ public interface LoanDao {
     List<Loan> getLoansByUserId(int userId, int offset, int limit);
 
     /**
-     * Retrieves paginated loans for a specific book from database.
-     *
-     * @param bookId the ID of the book
-     * @param offset the number of loans to skip
-     * @param limit  the maximum number of loans to retrieve
-     * @return a list of Loan objects for the book, or an empty list if none exist
-     */
-    List<Loan> getLoansByBookId(int bookId, int offset, int limit);
-
-    /**
      * Counts the total number of loans in the database.
      *
      * @return the total number of loans
@@ -83,12 +73,4 @@ public interface LoanDao {
      * @return the total number of loans for the user
      */
     long countLoansByUserId(int userId);
-
-    /**
-     * Counts the total number of loans for a specific book.
-     *
-     * @param bookId the ID of the book
-     * @return the total number of loans for the book
-     */
-    long countLoansByBookId(int bookId);
 }
